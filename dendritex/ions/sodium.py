@@ -20,42 +20,36 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as bu
 
-from .._base import Ion
+from dendritex._base import Ion
 
 __all__ = [
-  'Sodium',
-  'SodiumFixed',
+    'Sodium',
+    'SodiumFixed',
 ]
 
 
 class Sodium(Ion):
-  """Base class for modeling Sodium ion."""
-  __module__ = 'dendritex.ions'
+    """Base class for modeling Sodium ion."""
+    __module__ = 'dendritex.ions'
 
 
 class SodiumFixed(Sodium):
-  """
-  Fixed Sodium dynamics.
+    """
+    Fixed Sodium dynamics.
 
-  This calcium model has no dynamics. It holds fixed reversal
-  potential :math:`E` and concentration :math:`C`.
-  """
-  __module__ = 'dendritex.ions'
+    This calcium model has no dynamics. It holds fixed reversal
+    potential :math:`E` and concentration :math:`C`.
+    """
+    __module__ = 'dendritex.ions'
 
-  def __init__(
-      self,
-      size: bst.typing.Size,
-      E: Union[bst.typing.ArrayLike, Callable] = 50. * bu.mV,
-      C: Union[bst.typing.ArrayLike, Callable] = 0.0400811 * bu.mM,
-      name: Optional[str] = None,
-      mode: Optional[bst.mixin.Mode] = None,
-      **channels
-  ):
-    super().__init__(
-      size,
-      name=name,
-      mode=mode,
-      **channels
-    )
-    self.E = bst.init.param(E, self.varshape, allow_none=False)
-    self.C = bst.init.param(C, self.varshape, allow_none=False)
+    def __init__(
+        self,
+        size: bst.typing.Size,
+        E: Union[bst.typing.ArrayLike, Callable] = 50. * bu.mV,
+        C: Union[bst.typing.ArrayLike, Callable] = 0.0400811 * bu.mM,
+        name: Optional[str] = None,
+        **channels
+    ):
+        super().__init__(size, name=name, **channels)
+        self.E = bst.init.param(E, self.varshape, allow_none=False)
+        self.C = bst.init.param(C, self.varshape, allow_none=False)

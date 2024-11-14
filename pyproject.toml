@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 exclude = [
-    "docs*", "build*", "dist*",
+    "docs*", "build*", "dist*", "examples*",
     "dendritex.egg-info*", "dendritex/__pycache__*",
     "dendritex/__init__.py"
 ]
@@ -48,7 +48,7 @@ dependencies = [
     'jax',
     'jaxlib',
     'numpy',
-    'brainstate>=0.0.2',
+    'brainstate>=0.1.0',
     'brainunit>=0.0.2.post20240903',
     'diffrax',
 ]

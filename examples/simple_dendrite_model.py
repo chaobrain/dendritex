@@ -22,75 +22,74 @@ s = u.siemens / u.cm ** 2
 
 
 class INa(dx.channels.SodiumChannel):
-  def __init__(self, size, g_max):
-    super().__init__(size)
+    def __init__(self, size, g_max):
+        super().__init__(size)
 
-    self.g_max = bst.init.param(g_max, self.varshape)
+        self.g_max = bst.init.param(g_max, self.varshape)
 
-  def init_state(self, V, Na: dx.IonInfo, batch_size: int = None):
-    self.m = dx.State4Integral(self.m_inf(V))
-    self.h = dx.State4Integral(self.h_inf(V))
+    def init_state(self, V, Na: dx.IonInfo, batch_size: int = None):
+        self.m = dx.State4Integral(self.m_inf(V))
+        self.h = dx.State4Integral(self.h_inf(V))
 
-  def compute_derivative(self, V, Na: dx.IonInfo):
-    self.m.derivative = (self.m_alpha(V) * (1 - self.m.value) - self.m_beta(V) * self.m.value) / u.ms
-    self.h.derivative = (self.h_alpha(V) * (1 - self.h.value) - self.h_beta(V) * self.h.value) / u.ms
+    def compute_derivative(self, V, Na: dx.IonInfo):
+        self.m.derivative = (self.m_alpha(V) * (1 - self.m.value) - self.m_beta(V) * self.m.value) / u.ms
+        self.h.derivative = (self.h_alpha(V) * (1 - self.h.value) - self.h_beta(V) * self.h.value) / u.ms
 
-  def current(self, V, Na: dx.IonInfo):
-    return self.g_max * self.m.value ** 3 * self.h.value * (Na.E - V)
+    def current(self, V, Na: dx.IonInfo):
+        return self.g_max * self.m.value ** 3 * self.h.value * (Na.E - V)
 
-  # m channel
-  m_alpha = lambda self, V: 1. / u.math.exprel(-(V / u.mV + 40.) / 10.)  # nan
-  m_beta = lambda self, V: 4. * u.math.exp(-(V / u.mV + 65.) / 18.)
-  m_inf = lambda self, V: self.m_alpha(V) / (self.m_alpha(V) + self.m_beta(V))
+    # m channel
+    m_alpha = lambda self, V: 1. / u.math.exprel(-(V / u.mV + 40.) / 10.)  # nan
+    m_beta = lambda self, V: 4. * u.math.exp(-(V / u.mV + 65.) / 18.)
+    m_inf = lambda self, V: self.m_alpha(V) / (self.m_alpha(V) + self.m_beta(V))
 
-  # h channel
-  h_alpha = lambda self, V: 0.07 * u.math.exp(-(V / u.mV + 65.) / 20.)
-  h_beta = lambda self, V: 1. / (1. + u.math.exp(-(V / u.mV + 35.) / 10.))
-  h_inf = lambda self, V: self.h_alpha(V) / (self.h_alpha(V) + self.h_beta(V))
+    # h channel
+    h_alpha = lambda self, V: 0.07 * u.math.exp(-(V / u.mV + 65.) / 20.)
+    h_beta = lambda self, V: 1. / (1. + u.math.exp(-(V / u.mV + 35.) / 10.))
+    h_inf = lambda self, V: self.h_alpha(V) / (self.h_alpha(V) + self.h_beta(V))
 
 
 class IK(dx.channels.PotassiumChannel):
-  def __init__(self, size, g_max):
-    super().__init__(size)
-    self.g_max = bst.init.param(g_max, self.varshape)
+    def __init__(self, size, g_max):
+        super().__init__(size)
+        self.g_max = bst.init.param(g_max, self.varshape)
 
-  def init_state(self, V, K: dx.IonInfo, batch_size: int = None):
-    self.n = dx.State4Integral(self.n_inf(V))
+    def init_state(self, V, K: dx.IonInfo, batch_size: int = None):
+        self.n = dx.State4Integral(self.n_inf(V))
 
-  def compute_derivative(self, V, K: dx.IonInfo):
-    self.n.derivative = (self.n_alpha(V) * (1 - self.n.value) - self.n_beta(V) * self.n.value) / u.ms
+    def compute_derivative(self, V, K: dx.IonInfo):
+        self.n.derivative = (self.n_alpha(V) * (1 - self.n.value) - self.n_beta(V) * self.n.value) / u.ms
 
-  def current(self, V, K: dx.IonInfo):
-    return self.g_max * self.n.value ** 4 * (K.E - V)
+    def current(self, V, K: dx.IonInfo):
+        return self.g_max * self.n.value ** 4 * (K.E - V)
 
-  n_alpha = lambda self, V: 0.1 / u.math.exprel(-(V / u.mV + 55.) / 10.)
-  n_beta = lambda self, V: 0.125 * u.math.exp(-(V / u.mV + 65.) / 80.)
-  n_inf = lambda self, V: self.n_alpha(V) / (self.n_alpha(V) + self.n_beta(V))
+    n_alpha = lambda self, V: 0.1 / u.math.exprel(-(V / u.mV + 55.) / 10.)
+    n_beta = lambda self, V: 0.125 * u.math.exp(-(V / u.mV + 65.) / 80.)
+    n_inf = lambda self, V: self.n_alpha(V) / (self.n_alpha(V) + self.n_beta(V))
 
 
 class ThreeCompartmentHH(dx.neurons.MultiCompartment):
-  def __init__(self, n_neuron: int, g_na, g_k):
-    super().__init__(
-      size=(n_neuron, 3),
-      connection=((0, 1), (1, 2)),
-      Ra=100. * u.ohm * u.cm,
-      cm=1.0 * u.uF / u.cm ** 2,
-      diam=(12.6157, 1., 1.) * u.um,
-      L=(12.6157, 200., 400.) * u.um,
-      V_th=20. * u.mV,
-      V_initializer=bst.init.Constant(-65 * u.mV),
-      spk_fun=bst.surrogate.ReluGrad(),
-    )
+    def __init__(self, n_neuron: int, g_na, g_k):
+        super().__init__(
+            size=(n_neuron, 3),
+            connection=((0, 1), (1, 2)),
+            Ra=100. * u.ohm * u.cm,
+            cm=1.0 * u.uF / u.cm ** 2,
+            diam=(12.6157, 1., 1.) * u.um,
+            L=(12.6157, 200., 400.) * u.um,
+            V_th=20. * u.mV,
+            V_initializer=bst.init.Constant(-65 * u.mV),
+            spk_fun=bst.surrogate.ReluGrad(),
+        )
 
-    self.IL = dx.channels.IL(self.size, E=(-54.3, -65., -65.) * u.mV, g_max=[0.0003, 0.001, 0.001] * s)
+        self.IL = dx.channels.IL(self.size, E=(-54.3, -65., -65.) * u.mV, g_max=[0.0003, 0.001, 0.001] * s)
 
-    self.na = dx.ions.SodiumFixed(self.size, E=50. * u.mV)
-    self.na.add_elem(INa(self.size, g_max=(g_na, 0., 0.) * s))
+        self.na = dx.ions.SodiumFixed(self.size, E=50. * u.mV)
+        self.na.add_elem(INa=INa(self.size, g_max=(g_na, 0., 0.) * s))
 
-    self.k = dx.ions.PotassiumFixed(self.size, E=-77. * u.mV)
-    self.k.add_elem(IK(self.size, g_max=(g_k, 0., 0.) * s))
+        self.k = dx.ions.PotassiumFixed(self.size, E=-77. * u.mV)
+        self.k.add_elem(IK=IK(self.size, g_max=(g_k, 0., 0.) * s))
 
-  def step_run(self, t, inp):
-    dx.rk4_step(self, t, inp)
-    return self.V.value, self.spike.value
-
+    def step_run(self, t, inp):
+        dx.rk4_step(self, t, inp)
+        return self.V.value, self.spike.value
