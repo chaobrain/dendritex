@@ -21,48 +21,42 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as bu
 
-from .._base import Ion, Channel
+from dendritex._base import Ion, Channel
 
 __all__ = [
-  'Potassium',
-  'PotassiumFixed',
+    'Potassium',
+    'PotassiumFixed',
 ]
 
 
 class Potassium(Ion):
-  """Base class for modeling Potassium ion."""
-  __module__ = 'dendritex.ions'
+    """Base class for modeling Potassium ion."""
+    __module__ = 'dendritex.ions'
 
 
 class PotassiumFixed(Potassium):
-  """Fixed Sodium dynamics.
+    """Fixed Sodium dynamics.
 
-  This calcium model has no dynamics. It holds fixed reversal
-  potential :math:`E` and concentration :math:`C`.
-  """
-  __module__ = 'dendritex.ions'
+    This calcium model has no dynamics. It holds fixed reversal
+    potential :math:`E` and concentration :math:`C`.
+    """
+    __module__ = 'dendritex.ions'
 
-  def __init__(
-      self,
-      size: bst.typing.Size,
-      E: Union[bst.typing.ArrayLike, Callable] = -95. * bu.mV,
-      C: Union[bst.typing.ArrayLike, Callable] = 0.0400811 * bu.mM,
-      name: Optional[str] = None,
-      mode: Optional[bst.mixin.Mode] = None,
-      **channels
-  ):
-    super().__init__(
-      size,
-      name=name,
-      mode=mode,
-      **channels
-    )
-    self.E = bst.init.param(E, self.varshape)
-    self.C = bst.init.param(C, self.varshape)
+    def __init__(
+        self,
+        size: bst.typing.Size,
+        E: Union[bst.typing.ArrayLike, Callable] = -95. * bu.mV,
+        C: Union[bst.typing.ArrayLike, Callable] = 0.0400811 * bu.mM,
+        name: Optional[str] = None,
+        **channels
+    ):
+        super().__init__(size, name=name, **channels)
+        self.E = bst.init.param(E, self.varshape)
+        self.C = bst.init.param(C, self.varshape)
 
-  def reset_state(self, V, batch_size=None):
-    nodes = self.nodes(level=1, include_self=False).subset(Channel).values()
-    self.check_hierarchies(type(self), *tuple(nodes))
-    ion_info = self.pack_info()
-    for node in nodes:
-      node.reset_state(V, ion_info, batch_size)
+    def reset_state(self, V, batch_size=None):
+        nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values()
+        self.check_hierarchies(type(self), *tuple(nodes))
+        ion_info = self.pack_info()
+        for node in nodes:
+            node.reset_state(V, ion_info, batch_size)
