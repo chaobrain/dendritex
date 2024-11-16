@@ -11,7 +11,8 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as bu
 
-from dendritex._base import Channel, HHTypedNeuron, State4Integral
+from dendritex._base import Channel, HHTypedNeuron
+from dendritex._integrators import State4Integral
 
 __all__ = [
     'Ih_HM1992',
@@ -79,13 +80,13 @@ class Ih_HM1992(Channel):
     def reset_state(self, V, batch_size=None):
         self.p.value = self.f_p_inf(V)
 
-    def before_integral(self, V):
+    def pre_integral(self, V):
         pass
 
     def compute_derivative(self, V):
         self.p.derivative = self.phi * (self.f_p_inf(V) - self.p.value) / self.f_p_tau(V) / bu.ms
 
-    def post_derivative(self, V):
+    def post_integral(self, V):
         pass
 
     def current(self, V):
@@ -302,14 +303,14 @@ class Ih1_Ma2020(Channel):
         self.p.value = self.f_p_inf(V)
         self.q.value = self.f_q_inf(V)
 
-    def before_integral(self, V):
+    def pre_integral(self, V):
         pass
 
     def compute_derivative(self, V):
         self.p.derivative = self.phi_channel * (self.f_p_inf(V) - self.p.value) / self.f_p_tau(V) / bu.ms
         self.q.derivative = self.phi_channel * (self.f_q_inf(V) - self.q.value) / self.f_q_tau(V) / bu.ms
 
-    def post_derivative(self, V):
+    def post_integral(self, V):
         pass
 
     def current(self, V):
@@ -391,14 +392,14 @@ class Ih2_Ma2020(Channel):
         self.p.value = self.f_p_inf(V)
         self.q.value = self.f_q_inf(V)
 
-    def before_integral(self, V):
+    def pre_integral(self, V):
         pass
 
     def compute_derivative(self, V):
         self.p.derivative = self.phi_channel * (self.f_p_inf(V) - self.p.value) / self.f_p_tau(V) / bu.ms
         self.q.derivative = self.phi_channel * (self.f_q_inf(V) - self.q.value) / self.f_q_tau(V) / bu.ms
 
-    def post_derivative(self, V):
+    def post_integral(self, V):
         pass
 
     def current(self, V):

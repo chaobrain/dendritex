@@ -12,7 +12,8 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import Channel, IonInfo, State4Integral
+from dendritex._base import Channel, IonInfo
+from dendritex._integrators import State4Integral
 from dendritex.ions import Calcium
 
 __all__ = [
@@ -39,10 +40,10 @@ class CalciumChannel(Channel):
 
     root_type = Calcium
 
-    def before_integral(self, V, Ca: IonInfo):
+    def pre_integral(self, V, Ca: IonInfo):
         pass
 
-    def post_derivative(self, V, Ca: IonInfo):
+    def post_integral(self, V, Ca: IonInfo):
         pass
 
     def compute_derivative(self, V, Ca: IonInfo):

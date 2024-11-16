@@ -13,7 +13,8 @@ import brainstate as bst
 import brainunit as bu
 import jax
 
-from dendritex._base import IonInfo, Channel, State4Integral
+from dendritex._base import IonInfo, Channel
+from dendritex._integrators import State4Integral
 from dendritex.ions import Calcium, Potassium
 
 __all__ = [
@@ -30,10 +31,10 @@ class KCaChannel(Channel):
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 
-    def before_integral(self, V, K: IonInfo, Ca: IonInfo):
+    def pre_integral(self, V, K: IonInfo, Ca: IonInfo):
         pass
 
-    def post_derivative(self, V, K: IonInfo, Ca: IonInfo):
+    def post_integral(self, V, K: IonInfo, Ca: IonInfo):
         pass
 
     def compute_derivative(self, V, K: IonInfo, Ca: IonInfo):
@@ -270,7 +271,7 @@ class IKca2_2_Ma2020(KCaChannel):
     def current(self, V, K: IonInfo, Ca: IonInfo):
         return self.g_max * (self.O1.value + self.O2.value) * (K.E - V)
 
-    def before_integral(self, V, K: IonInfo, Ca: IonInfo):
+    def pre_integral(self, V, K: IonInfo, Ca: IonInfo):
         self.normalize_states([self.C1, self.C2, self.C3, self.C4, self.O1, self.O2])
 
     def normalize_states(self, states):
@@ -383,7 +384,7 @@ class IKca1_1_Ma2020(KCaChannel):
     def current(self, V, K: IonInfo, Ca: IonInfo):
         return self.g_max * (self.O1.value + self.O2.value) * (K.E - V)
 
-    def before_integral(self, V, K: IonInfo, Ca: IonInfo):
+    def pre_integral(self, V, K: IonInfo, Ca: IonInfo):
         self.normalize_states([getattr(self, f'C{i}') for i in range(5)] + [getattr(self, f'O{i}') for i in range(5)])
 
     def normalize_states(self, states):
@@ -397,7 +398,7 @@ class IKca1_1_Ma2020(KCaChannel):
     def compute_derivative(self, V, K: IonInfo, Ca: IonInfo):
 
         self.C0.derivative = (self.C1 * self.c10(Ca) + self.O0 * self.b0(V) - self.C0 * (
-                self.c01(Ca) + self.f0(V))) / bu.ms
+            self.c01(Ca) + self.f0(V))) / bu.ms
         self.C1.derivative = (self.C0 * self.c01(Ca) + self.C2 * self.c21(Ca) + self.O1 * self.b1(V) - self.C1 * (
             self.c10(Ca) + self.c12(Ca) + self.f1(V))) / bu.ms
         self.C2.derivative = (self.C1 * self.c12(Ca) + self.C3 * self.c32(Ca) + self.O2 * self.b2(V) - self.C2 * (
@@ -405,10 +406,10 @@ class IKca1_1_Ma2020(KCaChannel):
         self.C3.derivative = (self.C2 * self.c23(Ca) + self.C4 * self.c43(Ca) + self.O3 * self.b3(V) - self.C3 * (
             self.c32(Ca) + self.c34(Ca) + self.f3(V))) / bu.ms
         self.C4.derivative = (self.C3 * self.c34(Ca) + self.O4 * self.b4(V) - self.C4 * (
-                self.c43(Ca) + self.f4(V))) / bu.ms
+            self.c43(Ca) + self.f4(V))) / bu.ms
 
         self.O0.derivative = (self.O1 * self.o10(Ca) + self.C0 * self.f0(V) - self.O0 * (
-                self.o01(Ca) + self.b0(V))) / bu.ms
+            self.o01(Ca) + self.b0(V))) / bu.ms
         self.O1.derivative = (self.O0 * self.o01(Ca) + self.O2 * self.o21(Ca) + self.C1 * self.f1(V) - self.O1 * (
             self.o10(Ca) + self.o12(Ca) + self.b1(V))) / bu.ms
         self.O2.derivative = (self.O1 * self.o12(Ca) + self.O3 * self.o32(Ca) + self.C2 * self.f2(V) - self.O2 * (
@@ -416,7 +417,7 @@ class IKca1_1_Ma2020(KCaChannel):
         self.O3.derivative = (self.O2 * self.o23(Ca) + self.O4 * self.o43(Ca) + self.C3 * self.f3(V) - self.O3 * (
             self.o32(Ca) + self.o34(Ca) + self.b3(V))) / bu.ms
         self.O4.derivative = (self.O3 * self.o34(Ca) + self.C4 * self.f4(V) - self.O4 * (
-                self.o43(Ca) + self.b4(V))) / bu.ms
+            self.o43(Ca) + self.b4(V))) / bu.ms
 
     def current(self, V, K: IonInfo, Ca: IonInfo):
         return self.g_max * (self.O0.value + self.O1.value + self.O2.value + self.O3.value + self.O4.value) * (K.E - V)

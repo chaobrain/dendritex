@@ -22,7 +22,8 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import Ion, Channel, HHTypedNeuron, State4Integral
+from dendritex._base import Ion, Channel, HHTypedNeuron
+from dendritex._integrators import State4Integral
 
 __all__ = [
     'Calcium',

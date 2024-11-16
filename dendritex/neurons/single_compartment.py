@@ -20,7 +20,8 @@ from typing import Union, Optional, Callable
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import HHTypedNeuron, IonChannel, State4Integral
+from dendritex._base import HHTypedNeuron, IonChannel
+from dendritex._integrators import State4Integral
 
 __all__ = [
     'SingleCompartment',
@@ -93,10 +94,10 @@ class SingleCompartment(HHTypedNeuron):
         self._v_last_time = None
         super().init_state(batch_size)
 
-    def before_integral(self, *args):
+    def pre_integral(self, *args):
         self._v_last_time = self.V.value
-        for node in self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel).values():
-            node.before_integral(self.V.value)
+        for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
+            node.pre_integral(self.V.value)
 
     def compute_derivative(self, x=0. * u.nA / u.cm ** 2):
         # [ Compute the derivative of membrane potential ]
@@ -104,7 +105,7 @@ class SingleCompartment(HHTypedNeuron):
         x = self.sum_current_inputs(x, self.V.value)
 
         # 3. channels
-        for ch in self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel).values():
+        for key, ch in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             x = x + ch.current(self.V.value)
 
         # 4. derivatives
@@ -112,15 +113,13 @@ class SingleCompartment(HHTypedNeuron):
 
         # [ integrate dynamics of ion and ion channels ]
         # check whether the children channels have the correct parents.
-        for node in self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel).values():
+        for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.compute_derivative(self.V.value)
 
-    def post_derivative(self, *args):
-        self.V.value = self.sum_delta_inputs(init=self.V.value)
-        for node in self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel).values():
-            node.post_derivative(self.V.value)
-
     def update(self, *args):
+        self.V.value = self.sum_delta_inputs(init=self.V.value)
+        for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
+            node.post_integral(self.V.value)
         return self.get_spike()
 
     def get_spike(self):

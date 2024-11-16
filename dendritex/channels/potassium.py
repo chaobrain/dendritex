@@ -12,7 +12,8 @@ from typing import Union, Callable, Optional, Sequence
 import brainstate as bst
 import brainunit as bu
 
-from dendritex._base import Channel, IonInfo, State4Integral
+from dendritex._base import Channel, IonInfo
+from dendritex._integrators import State4Integral
 from dendritex.ions import Potassium
 
 __all__ = [
@@ -40,10 +41,10 @@ class PotassiumChannel(Channel):
 
     root_type = Potassium
 
-    def before_integral(self, V, K: IonInfo):
+    def pre_integral(self, V, K: IonInfo):
         pass
 
-    def post_derivative(self, V, K: IonInfo):
+    def post_integral(self, V, K: IonInfo):
         pass
 
     def compute_derivative(self, V, K: IonInfo):
@@ -1043,7 +1044,7 @@ class IKv11_Ak2007(PotassiumChannel):
 
     def compute_derivative(self, V, K: IonInfo):
         self.p.derivative = self.phi * (
-                self.f_p_alpha(V) * (1. - self.p.value) - self.f_p_beta(V) * self.p.value) / bu.ms
+            self.f_p_alpha(V) * (1. - self.p.value) - self.f_p_beta(V) * self.p.value) / bu.ms
 
     def current(self, V, K: IonInfo):
         if self.gateCurrent == 0:

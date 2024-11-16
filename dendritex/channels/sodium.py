@@ -12,7 +12,8 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import Channel, IonInfo, State4Integral
+from dendritex._base import Channel, IonInfo
+from dendritex._integrators import State4Integral
 from dendritex.ions import Sodium
 
 __all__ = [
@@ -30,10 +31,10 @@ class SodiumChannel(Channel):
 
     root_type = Sodium
 
-    def before_integral(self, V, Na: IonInfo):
+    def pre_integral(self, V, Na: IonInfo):
         pass
 
-    def post_derivative(self, V, Na: IonInfo):
+    def post_integral(self, V, Na: IonInfo):
         pass
 
     def compute_derivative(self, V, Na: IonInfo):
@@ -427,7 +428,7 @@ class INa_Rsg(SodiumChannel):
         for state in states:
             state.value = state.value / total
 
-    def before_integral(self, V, Na: IonInfo):
+    def pre_integral(self, V, Na: IonInfo):
         self.normalize_states(
             [self.C1, self.C2, self.C3, self.C4, self.C5, self.I1, self.I2, self.I3, self.I4, self.I5, self.O, self.B,
              self.I6])

@@ -28,10 +28,10 @@ class LeakageChannel(Channel):
 
     root_type = HHTypedNeuron
 
-    def before_integral(self, V):
+    def pre_integral(self, V):
         pass
 
-    def post_derivative(self, V):
+    def post_integral(self, V):
         pass
 
     def compute_derivative(self, V):
