@@ -13,7 +13,7 @@ import brainstate as bst
 import brainunit as bu
 
 from dendritex._base import Channel, IonInfo
-from dendritex._integrators import State4Integral
+from dendritex._integrators import DiffEqState
 from dendritex.ions import Potassium
 
 __all__ = [
@@ -101,7 +101,7 @@ class _IK_p4_markov(PotassiumChannel):
         self.phi = bst.init.param(phi, self.varshape, allow_none=False)
 
     def init_state(self, V, K: IonInfo, batch_size=None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, K: IonInfo, batch_size: int = None):
         alpha = self.f_p_alpha(V)
@@ -387,8 +387,8 @@ class _IKA_p4q_ss(PotassiumChannel):
         return self.g_max * self.p.value ** 4 * self.q.value * (K.E - V)
 
     def init_state(self, V, K: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, K: IonInfo, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -654,8 +654,8 @@ class _IKK2_pq_ss(PotassiumChannel):
         return self.g_max * self.p.value * self.q.value * (K.E - V)
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, K: IonInfo, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -916,7 +916,7 @@ class IKNI_Ya1989(PotassiumChannel):
         return self.g_max * self.p.value * (K.E - V)
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, K: IonInfo, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -1033,7 +1033,7 @@ class IKv11_Ak2007(PotassiumChannel):
         self.zn = 2.7978
 
     def init_state(self, V, K: IonInfo, batch_size=None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, K: IonInfo, batch_size: int = None):
         alpha = self.f_p_alpha(V)
@@ -1112,8 +1112,8 @@ class IKv34_Ma2020(PotassiumChannel):
         return self.g_max * self.p.value ** 3 * self.q.value * (K.E - V)
 
     def init_state(self, V, K: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, K: IonInfo, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -1209,8 +1209,8 @@ class IKv43_Ma2020(PotassiumChannel):
         return self.g_max * self.p.value ** 3 * self.q.value * (K.E - V)
 
     def init_state(self, V, K: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, K: IonInfo, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -1304,7 +1304,7 @@ class IKM_Grc_Ma2020(PotassiumChannel):
         return self.g_max * self.p.value * (self.ek - V)
 
     def init_state(self, V, K: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, K: IonInfo, batch_size=None):
         self.p.value = self.f_p_inf(V)

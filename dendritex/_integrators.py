@@ -16,62 +16,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Tuple, Callable, Dict, Union, Sequence
+from typing import Sequence
 
 import brainstate as bst
 import brainunit as u
-import diffrax as dfx
 import jax
 from brainstate._state import record_state_value_write
 
 from ._misc import set_module_as
 
-
-class State4Integral(bst.ShortTermState):
-    """
-    A state that integrates the state of the system to the integral of the state.
-
-    Attributes
-    ----------
-    derivative: The derivative of the state.
-
-    """
-
-    __module__ = 'dendritex'
-
-    # derivative of this state
-    derivative: bst.typing.PyTree
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._derivative = None
-
-    @property
-    def derivative(self):
-        return self._derivative
-
-    @derivative.setter
-    def derivative(self, value):
-        record_state_value_write(self)
-        self._derivative = value
-
-
-class DiffEqModule(bst.mixin.Mixin):
-    __module__ = 'dendritex'
-
-    def pre_integral(self, *args, **kwargs):
-        pass
-
-    def compute_derivative(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def post_integral(self, *args, **kwargs):
-        pass
-
-
 __all__ = [
-    'diffrax_solve_adjoint',
-    'diffrax_solve',
+    'DiffEqState',
+    'DiffEqModule',
     'euler_step',
     'midpoint_step',
     'rk2_step',
@@ -85,313 +41,71 @@ __all__ = [
     'ralston4_step',
 ]
 
-diffrax_solvers = {
-    # explicit RK
-    'euler': dfx.Euler,
-    'revheun': dfx.ReversibleHeun,
-    'heun': dfx.Heun,
-    'midpoint': dfx.Midpoint,
-    'ralston': dfx.Ralston,
-    'bosh3': dfx.Bosh3,
-    'tsit5': dfx.Tsit5,
-    'dopri5': dfx.Dopri5,
-    'dopri8': dfx.Dopri8,
 
-    # implicit RK
-    'ieuler': dfx.ImplicitEuler,
-    'kvaerno3': dfx.Kvaerno3,
-    'kvaerno4': dfx.Kvaerno4,
-    'kvaerno5': dfx.Kvaerno5,
-}
-
-
-def _is_quantity(x):
-    return isinstance(x, u.Quantity)
-
-
-def _diffrax_solve(
-    model: Callable,
-    solver: str,
-    t0: u.Quantity,
-    t1: u.Quantity,
-    dt0: u.Quantity,
-    adjoint: str,
-    saveat: Optional[u.Quantity] = None,
-    savefn: Optional[Callable] = None,
-    args: Tuple[bst.typing.PyTree] = (),
-    rtol: Optional[float] = None,
-    atol: Optional[float] = None,
-    max_steps: int = None,
-):
-    if isinstance(adjoint, str):
-        if adjoint == 'adjoint':
-            adjoint = dfx.BacksolveAdjoint()
-        elif adjoint == 'checkpoint':
-            adjoint = dfx.RecursiveCheckpointAdjoint()
-        elif adjoint == 'direct':
-            adjoint = dfx.DirectAdjoint()
-        else:
-            raise ValueError(f"Unknown adjoint method: {adjoint}. Only support 'checkpoint', 'direct', and 'adjoint'.")
-    elif isinstance(adjoint, dfx.AbstractAdjoint):
-        adjoint = adjoint
-    else:
-        raise ValueError(f"Unknown adjoint method: {adjoint}. Only support 'checkpoint', 'direct', and 'adjoint'.")
-
-    # processing times
-    dt0 = dt0.in_unit(u.ms)
-    t0 = t0.in_unit(u.ms)
-    t1 = t1.in_unit(u.ms)
-    if saveat is not None:
-        saveat = saveat.in_unit(u.ms)
-
-    # stepsize controller
-    if rtol is None and atol is None:
-        stepsize_controller = dfx.ConstantStepSize()
-    else:
-        if rtol is None:
-            rtol = atol
-        if atol is None:
-            atol = rtol
-        stepsize_controller = dfx.PIDController(rtol=rtol, atol=atol)
-
-    # numerical solver
-    if solver not in diffrax_solvers:
-        raise ValueError(f"Unknown solver: {solver}")
-    solver = diffrax_solvers[solver]()
-
-    def model_to_derivative(t, *args):
-        with bst.environ.context(t=t * u.ms):
-            with bst.StateTraceStack() as trace:
-                model(t * u.ms, *args)
-                derivatives = []
-                for st in trace.states:
-                    if isinstance(st, State4Integral):
-                        a = u.get_unit(st.derivative) * u.ms
-                        b = u.get_unit(st.value)
-                        assert a.has_same_dim(b), f'Unit mismatch. Got {a} != {b}'
-                        if isinstance(st.derivative, u.Quantity):
-                            st.derivative = st.derivative.in_unit(u.get_unit(st.value) / u.ms)
-                        derivatives.append(st.derivative)
-                    else:
-                        raise ValueError(f"State {st} is not for integral.")
-                return derivatives
-
-    # stateful function and make jaxpr
-    stateful_fn = bst.compile.StatefulFunction(model_to_derivative).make_jaxpr(0., *args)
-
-    # states
-    states = stateful_fn.get_states()
-
-    def vector_filed(t, state_vals, args):
-        new_state_vals, derivatives = stateful_fn.jaxpr_call(state_vals, t, *args)
-        derivatives = tuple(d.mantissa if isinstance(d, u.Quantity) else d
-                            for d in derivatives)
-        return derivatives
-
-    def save_y(t, state_vals, args):
-        for st, st_val in zip(states, state_vals):
-            st.value = u.Quantity(st_val, unit=st.value.unit) if isinstance(st.value, u.Quantity) else st_val
-        assert callable(savefn), 'savefn must be callable.'
-        rets = savefn(t * u.ms, *args)
-        nonlocal return_units
-        if return_units is None:
-            return_units = jax.tree.map(lambda x: x.unit if isinstance(x, u.Quantity) else None, rets,
-                                        is_leaf=_is_quantity)
-        return jax.tree.map(lambda x: x.mantissa if isinstance(x, u.Quantity) else x, rets, is_leaf=_is_quantity)
-
-    return_units = None
-    if savefn is None:
-        return_units = tuple(st.value.unit if isinstance(st.value, u.Quantity) else None for st in states)
-        if saveat is None:
-            if isinstance(adjoint, dfx.BacksolveAdjoint):
-                raise ValueError('saveat must be specified when using backsolve adjoint.')
-            saveat = dfx.SaveAt(steps=True)
-        else:
-            saveat = dfx.SaveAt(ts=saveat.mantissa, t1=True)
-    else:
-        subsaveat_a = dfx.SubSaveAt(t1=True)
-        if saveat is None:
-            subsaveat_b = dfx.SubSaveAt(steps=True, fn=save_y)
-        else:
-            subsaveat_b = dfx.SubSaveAt(ts=saveat.mantissa, fn=save_y)
-        saveat = dfx.SaveAt(subs=[subsaveat_a, subsaveat_b])
-
-    # solving differential equations
-    sol = dfx.diffeqsolve(
-        dfx.ODETerm(vector_filed),
-        solver,
-        t0=t0.mantissa,
-        t1=t1.mantissa,
-        dt0=dt0.mantissa,
-        y0=tuple((v.value.mantissa if isinstance(v.value, u.Quantity) else v.value) for v in states),
-        args=args,
-        saveat=saveat,
-        adjoint=adjoint,
-        stepsize_controller=stepsize_controller,
-        max_steps=max_steps,
-    )
-    if savefn is None:
-        # assign values back to states
-        for st, st_value in zip(states, sol.ys):
-            st.value = u.Quantity(st_value[-1], unit=st.unit) if isinstance(st, u.Quantity) else st_value[-1]
-        # record solver state
-        return (
-            sol.ts * u.ms,
-            jax.tree.map(
-                lambda y, unit: (u.Quantity(y, unit=unit) if unit is not None else y),
-                sol.ys,
-                return_units
-            ),
-            sol.stats
-        )
-    else:
-        # assign values back to states
-        for st, st_value in zip(states, sol.ys[0]):
-            st.value = u.Quantity(st_value[0], unit=st.unit) if isinstance(st, u.Quantity) else st_value[0]
-        # record solver state
-        return (
-            sol.ts[1] * u.ms,
-            jax.tree.map(
-                lambda y, unit: (u.Quantity(y, unit=unit) if unit is not None else y),
-                sol.ys[1],
-                return_units
-            ),
-            sol.stats
-        )
-
-
-def diffrax_solve_adjoint(
-    model: Callable,
-    solver: str,
-    t0: u.Quantity,
-    t1: u.Quantity,
-    dt0: u.Quantity,
-    saveat: Optional[u.Quantity],
-    savefn: Optional[Callable] = None,
-    args: Tuple[bst.typing.PyTree] = (),
-    rtol: Optional[float] = None,
-    atol: Optional[float] = None,
-    max_steps: Optional[int] = None,
-):
+class DiffEqState(bst.ShortTermState):
     """
-    Solve the differential equations using `diffrax <https://docs.kidger.site/diffrax>`_ which
-    is compatible with the adjoint backpropagation.
+    A state that integrates the state of the system to the integral of the state.
 
-    Args:
-      model: The model function to solve.
-      solver: The solver to use. Available solvers are:
-        - 'euler'
-        - 'revheun'
-        - 'heun'
-        - 'midpoint'
-        - 'ralston'
-        - 'bosh3'
-        - 'tsit5'
-        - 'dopri5'
-        - 'dopri8'
-        - 'ieuler'
-        - 'kvaerno3'
-        - 'kvaerno4'
-        - 'kvaerno5'
-      t0: The initial time.
-      t1: The final time.
-      dt0: The initial step size.
-      saveat: The time points to save the solution. If None, save the solution at every step.
-      savefn: The function to save the solution. If None, save the solution at every step.
-      args: The arguments to pass to the model function.
-      rtol: The relative tolerance.
-      atol: The absolute tolerance.
-      max_steps: The maximum number of steps.
+    Attributes
+    ----------
+    derivative: The derivative of the differential equation state.
+    diffusion: The diffusion of the differential equation state.
 
-    Returns:
-      The solution of the differential equations, including the following items:
-        - The time points.
-        - The solution.
-        - The running step statistics.
     """
-    return _diffrax_solve(
-        model=model,
-        solver=solver,
-        t0=t0,
-        t1=t1,
-        dt0=dt0,
-        saveat=saveat,
-        savefn=savefn,
-        adjoint='adjoint',
-        max_steps=max_steps,
-        args=args,
-        rtol=rtol,
-        atol=atol,
-    )
+
+    __module__ = 'dendritex'
+
+    # derivative of this state
+    derivative: bst.typing.PyTree
+    diffusion: bst.typing.PyTree
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._derivative = None
+        self._diffusion = None
+
+    @property
+    def derivative(self):
+        """
+        The derivative of the state.
+
+        It is used to compute the derivative of the ODE system,
+        or the drift of the SDE system.
+        """
+        return self._derivative
+
+    @derivative.setter
+    def derivative(self, value):
+        record_state_value_write(self)
+        self._derivative = value
+
+    @property
+    def diffusion(self):
+        """
+        The diffusion of the state.
+
+        It is used to compute the diffusion of the SDE system.
+        If it is None, the system is considered as an ODE system.
+        """
+        return self._diffusion
+
+    @diffusion.setter
+    def diffusion(self, value):
+        record_state_value_write(self)
+        self._diffusion = value
 
 
-def diffrax_solve(
-    model: Callable,
-    solver: str,
-    t0: u.Quantity,
-    t1: u.Quantity,
-    dt0: u.Quantity,
-    saveat: Optional[u.Quantity] = None,
-    savefn: Optional[Callable] = None,
-    args: Tuple[bst.typing.PyTree] = (),
-    rtol: Optional[float] = None,
-    atol: Optional[float] = None,
-    max_steps: Optional[int] = None,
-    adjoint: Union[str, dfx.AbstractAdjoint] = 'checkpoint',
-) -> Tuple[u.Quantity, bst.typing.PyTree[u.Quantity], Dict]:
-    """
-    Solve the differential equations using `diffrax <https://docs.kidger.site/diffrax>`_.
+class DiffEqModule(bst.mixin.Mixin):
+    __module__ = 'dendritex'
 
-    Args:
-      model: The model function to solve.
-      solver: The solver to use. Available solvers are:
-        - 'euler'
-        - 'revheun'
-        - 'heun'
-        - 'midpoint'
-        - 'ralston'
-        - 'bosh3'
-        - 'tsit5'
-        - 'dopri5'
-        - 'dopri8'
-        - 'ieuler'
-        - 'kvaerno3'
-        - 'kvaerno4'
-        - 'kvaerno5'
-      t0: The initial time.
-      t1: The final time.
-      dt0: The initial step size.
-      saveat: The time points to save the solution. If None, save the solution at every step.
-      savefn: The function to save the solution. If None, save the solution at every step.
-      args: The arguments to pass to the model function.
-      rtol: The relative tolerance.
-      atol: The absolute tolerance.
-      max_steps: The maximum number of steps.
-      adjoint: The adjoint method. Available methods are:
-        - 'adjoint'
-        - 'checkpoint'
-        - 'direct'
+    def pre_integral(self, *args, **kwargs):
+        pass
 
-    Returns:
-      The solution of the differential equations, including the following items:
-        - The time points.
-        - The solution.
-        - The running step statistics.
-    """
-    return _diffrax_solve(
-        model=model,
-        solver=solver,
-        t0=t0,
-        t1=t1,
-        dt0=dt0,
-        saveat=saveat,
-        savefn=savefn,
-        adjoint=adjoint,
-        args=args,
-        rtol=rtol,
-        atol=atol,
-        max_steps=max_steps,
-    )
+    def compute_derivative(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def post_integral(self, *args, **kwargs):
+        pass
 
 
 @dataclass(frozen=True)
@@ -430,40 +144,38 @@ def _general_rk_step(
 ):
     dt = bst.environ.get_dt()
 
-    # Runge-Kutta stages
-    ks = []
-
     # before one-step integration
     target.pre_integral(*args)
 
+    # Runge-Kutta stages
+    ks = []
+
     # k1: first derivative step
     assert len(tableau.A[0]) == 0, f'The first row of A must be empty. Got {tableau.A[0]}'
-    with bst.environ.context(t=t + tableau.C[0] * dt):
-        with bst.StateTraceStack() as trace:
-            # compute derivative
-            target.compute_derivative(*args)
+    with bst.environ.context(t=t + tableau.C[0] * dt), bst.StateTraceStack() as trace:
+        # compute derivative
+        target.compute_derivative(*args)
 
-            # collection of states, initial values, and derivatives
-            states = []  # states
-            k1hs = []  # k1hs: k1 holder
-            y0 = []  # initial values
-            for st, val, writen in zip(trace.states, trace.original_state_values, trace.been_writen):
-                if isinstance(st, State4Integral):
-                    assert writen, f'State {st} must be written.'
-                    y0.append(val)
-                    states.append(st)
-                    k1hs.append(st.derivative)
-                else:
-                    if writen:
-                        raise ValueError(f'State {st} is not for integral.')
-            ks.append(k1hs)
+        # collection of states, initial values, and derivatives
+        states = []  # states
+        k1hs = []  # k1hs: k1 holder
+        y0 = []  # initial values
+        for st, val, writen in zip(trace.states, trace.original_state_values, trace.been_writen):
+            if isinstance(st, DiffEqState):
+                assert writen, f'State {st} must be written.'
+                y0.append(val)
+                states.append(st)
+                k1hs.append(st.derivative)
+            else:
+                if writen:
+                    raise ValueError(f'State {st} is not for integral.')
+        ks.append(k1hs)
 
     # intermediate steps
     for i in range(1, len(tableau.C)):
-        with bst.environ.context(t=t + tableau.C[i] * dt):
-            with bst.check_state_value_tree():
-                for st, y0_, *ks_ in zip(states, y0, *ks):
-                    _rk_update(tableau.A[i], st, y0_, *ks_)
+        with bst.environ.context(t=t + tableau.C[i] * dt), bst.check_state_value_tree():
+            for st, y0_, *ks_ in zip(states, y0, *ks):
+                _rk_update(tableau.A[i], st, y0_, *ks_)
             target.compute_derivative(*args)
             ks.append([st.derivative for st in states])
 

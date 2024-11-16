@@ -14,7 +14,7 @@ import brainunit as bu
 import jax
 
 from dendritex._base import IonInfo, Channel
-from dendritex._integrators import State4Integral
+from dendritex._integrators import DiffEqState
 from dendritex.ions import Calcium, Potassium
 
 __all__ = [
@@ -127,7 +127,7 @@ class IAHP_De1994(KCaChannel):
         return self.g_max * self.p.value * self.p.value * (K.E - V)
 
     def init_state(self, V, K: IonInfo, Ca: IonInfo, batch_size=None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, K: IonInfo, Ca: IonInfo, batch_size=None):
         C2 = self.alpha * bu.math.power(Ca.C / bu.mM, self.n)
@@ -193,7 +193,7 @@ class IKca3_1_Ma2020(KCaChannel):
         return bu.math.where(Ca.C / bu.mM < 0.01, concdep_1, concdep_2)
 
     def init_state(self, V, K: IonInfo, Ca: IonInfo, batch_size=None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
         self.reset_state(V, K, Ca)
 
     def reset_state(self, V, K: IonInfo, Ca: IonInfo, batch_size=None):
@@ -257,12 +257,12 @@ class IKca2_2_Ma2020(KCaChannel):
 
     def init_state(self, V, K: IonInfo, Ca: IonInfo, batch_size=None):
 
-        self.C1 = State4Integral(bst.init.param(bu.math.ones, self.varshape, batch_size))
-        self.C2 = State4Integral(bst.init.param(bu.math.ones, self.varshape, batch_size))
-        self.C3 = State4Integral(bst.init.param(bu.math.ones, self.varshape, batch_size))
-        self.C4 = State4Integral(bst.init.param(bu.math.ones, self.varshape, batch_size))
-        self.O1 = State4Integral(bst.init.param(bu.math.ones, self.varshape, batch_size))
-        self.O2 = State4Integral(bst.init.param(bu.math.ones, self.varshape, batch_size))
+        self.C1 = DiffEqState(bst.init.param(bu.math.ones, self.varshape, batch_size))
+        self.C2 = DiffEqState(bst.init.param(bu.math.ones, self.varshape, batch_size))
+        self.C3 = DiffEqState(bst.init.param(bu.math.ones, self.varshape, batch_size))
+        self.C4 = DiffEqState(bst.init.param(bu.math.ones, self.varshape, batch_size))
+        self.O1 = DiffEqState(bst.init.param(bu.math.ones, self.varshape, batch_size))
+        self.O2 = DiffEqState(bst.init.param(bu.math.ones, self.varshape, batch_size))
         self.normalize_states([self.C1, self.C2, self.C3, self.C4, self.O1, self.O2])
 
     def reset_state(self, V, K: IonInfo, Ca: IonInfo, batch_size=None):
@@ -371,10 +371,10 @@ class IKca1_1_Ma2020(KCaChannel):
     def init_state(self, V, K: IonInfo, Ca: IonInfo, batch_size=None):
 
         for i in range(5):
-            setattr(self, f'C{i}', State4Integral(bst.init.param(bu.math.ones, self.varshape, batch_size)))
+            setattr(self, f'C{i}', DiffEqState(bst.init.param(bu.math.ones, self.varshape, batch_size)))
 
         for i in range(5):
-            setattr(self, f'O{i}', State4Integral(bst.init.param(bu.math.ones, self.varshape, batch_size)))
+            setattr(self, f'O{i}', DiffEqState(bst.init.param(bu.math.ones, self.varshape, batch_size)))
 
         self.normalize_states([getattr(self, f'C{i}') for i in range(5)] + [getattr(self, f'O{i}') for i in range(5)])
 

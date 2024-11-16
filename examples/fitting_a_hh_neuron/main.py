@@ -53,8 +53,8 @@ class INa(dx.Channel):
         self.V_th = bst.init.param(vth, self.varshape)
 
     def init_state(self, V, batch_size=None):
-        self.m = dx.State4Integral(bst.init.param(u.math.zeros, self.varshape))
-        self.h = dx.State4Integral(bst.init.param(u.math.zeros, self.varshape))
+        self.m = dx.DiffEqState(bst.init.param(u.math.zeros, self.varshape))
+        self.h = dx.DiffEqState(bst.init.param(u.math.zeros, self.varshape))
 
     #  m channel
     m_alpha = lambda self, V: 0.32 * 4 / u.math.exprel((13. * u.mV - V + self.V_th).to_decimal(u.mV) / 4.)
@@ -94,7 +94,7 @@ class IK(dx.Channel):
         self.V_th = bst.init.param(vth, self.varshape)
 
     def init_state(self, V, batch_size=None):
-        self.n = dx.State4Integral(bst.init.param(u.math.zeros, self.varshape))
+        self.n = dx.DiffEqState(bst.init.param(u.math.zeros, self.varshape))
 
     # n channel
     n_alpha = lambda self, V: 0.032 * 5 / u.math.exprel((15. * u.mV - V + self.V_th).to_decimal(u.mV) / 5.)
@@ -131,11 +131,11 @@ def visualize_target(voltages):
     times = np.arange(voltages.shape[0]) * 0.01
     for i in range(voltages.shape[1]):
         ax = fig.add_subplot(gs[0, i])
-        ax.plot(times, voltages.mantissa[:, i], label='target')
+        ax.plot(times, voltages[:, i], label='target')
         plt.xlabel('Time [ms]')
         plt.legend()
         ax = plt.subplot(gs[1, i])
-        ax.plot(times, inp_traces[i].mantissa)
+        ax.plot(times, inp_traces[i])
         plt.xlabel('Time [ms]')
     plt.show()
 
@@ -145,7 +145,6 @@ def visualize(voltages, gl, g_na, g_kd, C):
     # voltages: [T, B]
     simulated_vs = simulate_model(gl, g_na, g_kd, C)
     voltages = voltages.mantissa
-    simulated_vs = simulated_vs.mantissa
 
     fig, gs = bts.visualize.get_figure(2, simulated_vs.shape[1], 3, 4.5)
     for i in range(simulated_vs.shape[1]):
@@ -154,7 +153,7 @@ def visualize(voltages, gl, g_na, g_kd, C):
         ax.plot(simulated_vs[:, i], label='simulated')
         plt.legend()
         ax = plt.subplot(gs[1, i])
-        ax.plot(inp_traces[i].mantissa)
+        ax.plot(inp_traces[i])
     plt.show()
 
 

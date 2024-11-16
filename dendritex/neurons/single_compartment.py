@@ -21,7 +21,7 @@ import brainstate as bst
 import brainunit as u
 
 from dendritex._base import HHTypedNeuron, IonChannel
-from dendritex._integrators import State4Integral
+from dendritex._integrators import DiffEqState
 
 __all__ = [
     'SingleCompartment',
@@ -85,7 +85,7 @@ class SingleCompartment(HHTypedNeuron):
         self.spk_fun = spk_fun
 
     def init_state(self, batch_size=None):
-        self.V = State4Integral(bst.init.param(self.V_initializer, self.varshape, batch_size))
+        self.V = DiffEqState(bst.init.param(self.V_initializer, self.varshape, batch_size))
         self._v_last_time = None
         super().init_state(batch_size)
 

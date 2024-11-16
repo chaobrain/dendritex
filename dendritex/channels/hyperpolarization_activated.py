@@ -12,7 +12,7 @@ import brainstate as bst
 import brainunit as bu
 
 from dendritex._base import Channel, HHTypedNeuron
-from dendritex._integrators import State4Integral
+from dendritex._integrators import DiffEqState
 
 __all__ = [
     'Ih_HM1992',
@@ -75,7 +75,7 @@ class Ih_HM1992(Channel):
         self.E = bst.init.param(E, self.varshape, allow_none=False)
 
     def init_state(self, V, batch_size=None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -218,9 +218,9 @@ class Ih_HM1992(Channel):
 #     return self.g_max * (self.O.value + self.g_inc * self.OL.value) * (self.E - V)
 #
 #   def init_state(self, V, Ca, batch_size=None):
-#     self.O = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-#     self.OL = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-#     self.P1 = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+#     self.O = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+#     self.OL = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+#     self.P1 = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 #
 #   def reset_state(self, V, Ca: IonInfo, batch_size=None):
 #     varshape = self.varshape if (batch_size is None) else ((batch_size,) + self.varshape)
@@ -296,8 +296,8 @@ class Ih1_Ma2020(Channel):
         self.tEs = 2.302585092
 
     def init_state(self, V, batch_size=None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -385,8 +385,8 @@ class Ih2_Ma2020(Channel):
         self.tEs = 2.3026
 
     def init_state(self, V, batch_size=None):
-        self.p = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(bu.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, batch_size=None):
         self.p.value = self.f_p_inf(V)

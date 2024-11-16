@@ -23,7 +23,7 @@ import brainstate as bst
 import brainunit as u
 
 from dendritex._base import Ion, Channel, HHTypedNeuron
-from dendritex._integrators import State4Integral
+from dendritex._integrators import DiffEqState
 
 __all__ = [
     'Calcium',
@@ -107,7 +107,7 @@ class _CalciumDynamics(Calcium):
 
     def init_state(self, V, batch_size=None):
         # Calcium concentration
-        self.C = State4Integral(bst.init.param(self._C_initializer, self.varshape, batch_size))
+        self.C = DiffEqState(bst.init.param(self._C_initializer, self.varshape, batch_size))
         super().init_state(V, batch_size)
 
     def reset_state(self, V, batch_size=None):
