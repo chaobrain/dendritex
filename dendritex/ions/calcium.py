@@ -102,9 +102,6 @@ class _CalciumDynamics(Calcium):
         self._constant = u.gas_constant * self.T / (2 * u.faraday_constant)
         self._C_initializer = C_initializer
 
-    def derivative(self, C, t, V):
-        raise NotImplementedError
-
     def init_state(self, V, batch_size=None):
         # Calcium concentration
         self.C = DiffEqState(bst.init.param(self._C_initializer, self.varshape, batch_size))
@@ -114,13 +111,16 @@ class _CalciumDynamics(Calcium):
         self.C.value = bst.init.param(self._C_initializer, self.varshape, batch_size)
         super().reset_state(V, batch_size)
 
+    def derivative(self, C, V):
+        raise NotImplementedError
+
     def compute_derivative(self, V):
         ca_info = self.pack_info()
         nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values()
         self.check_hierarchies(type(self), *tuple(nodes))
         for node in nodes:
             node.compute_derivative(V, ca_info)
-        self.C.derivative = self.derivative(self.C.value, bst.environ.get('t'), V)
+        self.C.derivative = self.derivative(self.C.value, V)
 
     @property
     def E(self):
@@ -263,7 +263,7 @@ class CalciumDetailed(_CalciumDynamics):
         self.tau = bst.init.param(tau, self.varshape, allow_none=False)
         self.C_rest = bst.init.param(C_rest, self.varshape, allow_none=False)
 
-    def derivative(self, C, t, V):
+    def derivative(self, C, V):
         ICa = self.current(V, include_external=True)
         drive = ICa / (2 * u.faraday_constant * self.d)
         drive = u.math.maximum(drive, u.math.zeros_like(drive))
@@ -305,7 +305,7 @@ class CalciumFirstOrder(_CalciumDynamics):
         self.alpha = bst.init.param(alpha, self.varshape, allow_none=False)
         self.beta = bst.init.param(beta, self.varshape, allow_none=False)
 
-    def derivative(self, C, t, V):
+    def derivative(self, C, V):
         ICa = self.current(V, include_external=True)
         drive = u.math.maximum(self.alpha * ICa, 0. * u.mM)
         return drive - self.beta * C
