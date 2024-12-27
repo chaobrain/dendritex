@@ -65,10 +65,7 @@ class Container(bst.mixin.Mixin):
         children = super().__getattribute__(name)
         if item == name:
             return children
-        if item in children:
-            return children[item]
-        else:
-            return super().__getattribute__(item)
+        return children[item] if item in children else super().__getattribute__(item)
 
     def add_elem(self, *elems, **elements):
         """
