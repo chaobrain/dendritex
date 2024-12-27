@@ -35,7 +35,7 @@ class Container(bst.mixin.Mixin):
 
     @staticmethod
     def _format_elements(child_type: type, **children_as_dict):
-        res = dict()
+        res = {}
 
         # add dict-typed components
         for k, v in children_as_dict.items():
