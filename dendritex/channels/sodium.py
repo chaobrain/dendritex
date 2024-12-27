@@ -12,7 +12,8 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import Channel, IonInfo, State4Integral
+from dendritex._base import Channel, IonInfo
+from dendritex._integrators import DiffEqState
 from dendritex.ions import Sodium
 
 __all__ = [
@@ -30,10 +31,10 @@ class SodiumChannel(Channel):
 
     root_type = Sodium
 
-    def before_integral(self, V, Na: IonInfo):
+    def pre_integral(self, V, Na: IonInfo):
         pass
 
-    def post_derivative(self, V, Na: IonInfo):
+    def post_integral(self, V, Na: IonInfo):
         pass
 
     def compute_derivative(self, V, Na: IonInfo):
@@ -90,8 +91,8 @@ class INa_p3q_markov(SodiumChannel):
         self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
 
     def init_state(self, V, Na: IonInfo, batch_size=None):
-        self.p = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Na: IonInfo, batch_size=None):
         alpha = self.f_p_alpha(V)
@@ -402,19 +403,19 @@ class INa_Rsg(SodiumChannel):
 
     def init_state(self, V, Na: IonInfo, batch_size=None):
 
-        self.C1 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.C2 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.C3 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.C4 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.C5 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.I1 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.I2 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.I3 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.I4 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.I5 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
-        self.O = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.B = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.I6 = State4Integral(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.C1 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.C2 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.C3 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.C4 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.C5 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.I1 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.I2 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.I3 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.I4 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.I5 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
+        self.O = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.B = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.I6 = DiffEqState(bst.init.param(u.math.ones, self.varshape, batch_size))
         self.normalize_states(
             [self.C1, self.C2, self.C3, self.C4, self.C5, self.I1, self.I2, self.I3, self.I4, self.I5, self.O, self.B,
              self.I6])
@@ -427,7 +428,7 @@ class INa_Rsg(SodiumChannel):
         for state in states:
             state.value = state.value / total
 
-    def before_integral(self, V, Na: IonInfo):
+    def pre_integral(self, V, Na: IonInfo):
         self.normalize_states(
             [self.C1, self.C2, self.C3, self.C4, self.C5, self.I1, self.I2, self.I3, self.I4, self.I5, self.O, self.B,
              self.I6])

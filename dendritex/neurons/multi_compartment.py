@@ -22,7 +22,8 @@ import brainunit as bu
 import jax
 import numpy as np
 
-from dendritex._base import HHTypedNeuron, State4Integral, IonChannel
+from dendritex._base import HHTypedNeuron, IonChannel
+from dendritex._integrators import DiffEqState
 
 __all__ = [
     'MultiCompartment',
@@ -171,7 +172,7 @@ class MultiCompartment(HHTypedNeuron):
         self.spk_fun = spk_fun
 
     def init_state(self, batch_size=None):
-        self.V = State4Integral(bst.init.param(self.V_initializer, self.varshape, batch_size))
+        self.V = DiffEqState(bst.init.param(self.V_initializer, self.varshape, batch_size))
         self._v_last_time = None
         super().init_state(batch_size)
 
@@ -180,11 +181,10 @@ class MultiCompartment(HHTypedNeuron):
         self._v_last_time = None
         super().reset_state(batch_size)
 
-    def before_integral(self, *args):
+    def pre_integral(self, *args):
         self._v_last_time = self.V.value
-        channels = self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel)
-        for node in channels.values():
-            node.before_integral(self.V.value)
+        for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
+            node.pre_integral(self.V.value)
 
     def compute_derivative(self, I_ext=0. * bu.nA):
         # [ Compute the derivative of membrane potential ]
@@ -196,24 +196,20 @@ class MultiCompartment(HHTypedNeuron):
         I_syn = self.sum_current_inputs(0. * bu.nA / bu.cm ** 2, self.V.value)
         # 3. channel currents
         I_channel = None
-        for ch in self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel).values():
+        for key, ch in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             I_channel = ch.current(self.V.value) if I_channel is None else (I_channel + ch.current(self.V.value))
         # 4. derivatives
         self.V.derivative = (I_ext + I_axial + I_syn + I_channel) / self.cm
 
         # [ integrate dynamics of ion and ion channels ]
         # check whether the children channels have the correct parents.
-        channels = self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel)
-        for node in channels.values():
+        for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.compute_derivative(self.V.value)
 
-    def post_derivative(self, *args):
-        self.V.value = self.sum_delta_inputs(init=self.V.value)
-        channels = self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel)
-        for node in channels.values():
-            node.post_derivative(self.V.value)
-
     def update(self, *args):
+        self.V.value = self.sum_delta_inputs(init=self.V.value)
+        for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
+            node.post_integral(self.V.value)
         return self.get_spike()
 
     def get_spike(self):

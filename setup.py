@@ -58,12 +58,12 @@ setup(
     author_email='chao.brain@qq.com',
     packages=packages,
     python_requires='>=3.9',
-    install_requires=['numpy>=1.15', 'jax', 'brainunit>=0.0.2.post20240903', 'brainstate>=0.1.0', 'diffrax'],
-    url='https://github.com/chaoming0625/dendritex',
+    install_requires=['numpy>=1.15', 'jax', 'brainunit>=0.0.2.post20240903', 'brainstate>=0.1.0'],
+    url='https://github.com/chaobrain/dendritex',
     project_urls={
-        "Bug Tracker": "https://github.com/chaoming0625/dendritex/issues",
+        "Bug Tracker": "https://github.com/chaobrain/dendritex/issues",
         "Documentation": "https://dendrite.readthedocs.io/",
-        "Source Code": "https://github.com/chaoming0625/dendritex",
+        "Source Code": "https://github.com/chaobrain/dendritex",
     },
     extras_require={
         'cpu': ['jaxlib'],

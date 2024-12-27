@@ -35,10 +35,8 @@ class HH(dx.neurons.SingleCompartment):
         self.IL = dx.channels.IL(size, E=-54.387 * u.mV, g_max=0.03 * (u.mS / u.cm ** 2))
 
     def step_fun(self, t):
-        # dx.euler_step(hh, t, 10 * u.nA)
-        # dx.rk2_step(hh, t, 10 * u.nA)
-        # dx.rk3_step(hh, t, 10 * u.nA)
         dx.rk2_step(self, t, 10 * u.nA / u.cm ** 2)
+        # spike = self.update()
         return self.V.value
 
 
