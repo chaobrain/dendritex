@@ -28,8 +28,8 @@ class INa(dx.channels.SodiumChannel):
         self.g_max = bst.init.param(g_max, self.varshape)
 
     def init_state(self, V, Na: dx.IonInfo, batch_size: int = None):
-        self.m = dx.State4Integral(self.m_inf(V))
-        self.h = dx.State4Integral(self.h_inf(V))
+        self.m = dx.DiffEqState(self.m_inf(V))
+        self.h = dx.DiffEqState(self.h_inf(V))
 
     def compute_derivative(self, V, Na: dx.IonInfo):
         self.m.derivative = (self.m_alpha(V) * (1 - self.m.value) - self.m_beta(V) * self.m.value) / u.ms
@@ -55,7 +55,7 @@ class IK(dx.channels.PotassiumChannel):
         self.g_max = bst.init.param(g_max, self.varshape)
 
     def init_state(self, V, K: dx.IonInfo, batch_size: int = None):
-        self.n = dx.State4Integral(self.n_inf(V))
+        self.n = dx.DiffEqState(self.n_inf(V))
 
     def compute_derivative(self, V, K: dx.IonInfo):
         self.n.derivative = (self.n_alpha(V) * (1 - self.n.value) - self.n_beta(V) * self.n.value) / u.ms

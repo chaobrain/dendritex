@@ -50,7 +50,6 @@ dependencies = [
     'numpy',
     'brainstate>=0.1.0',
     'brainunit>=0.0.2.post20240903',
-    'diffrax',
 ]
 
 dynamic = ['version']
@@ -59,8 +58,8 @@ dynamic = ['version']
 name = "dendritex"
 
 [project.urls]
-homepage = 'http://github.com/chaoming0625/dendritex'
-repository = 'http://github.com/chaoming0625/dendritex'
+homepage = 'http://github.com/chaobrain/dendritex'
+repository = 'http://github.com/chaobrain/dendritex'
 
 [project.optional-dependencies]
 testing = [

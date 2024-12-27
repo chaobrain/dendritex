@@ -24,10 +24,10 @@ import brainstate as bst
 import numpy as np
 from brainstate.mixin import _JointGenericAlias
 
-from ._misc import set_module_as
+from ._integrators import DiffEqModule
+from ._misc import set_module_as, Container, TreeNode
 
 __all__ = [
-    'State4Integral',
     'HHTypedNeuron',
     'IonChannel',
     'Ion',
@@ -49,134 +49,7 @@ __all__ = [
 '''
 
 
-class State4Integral(bst.ShortTermState):
-    """
-    A state that integrates the state of the system to the integral of the state.
-
-    Attributes
-    ----------
-    derivative: The derivative of the state.
-
-    """
-
-    __module__ = 'dendritex'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.derivative = None
-
-
-class DendriteDynamics(bst.mixin.Mixin):
-
-    def current(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def before_integral(self, *args, **kwargs):
-        pass
-
-    def compute_derivative(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def post_derivative(self, *args, **kwargs):
-        pass
-
-    def reset_state(self, *args, **kwargs):
-        pass
-
-    def init_state(self, *args, **kwargs):
-        pass
-
-
-class Container(bst.mixin.Mixin):
-    __module__ = 'dendritex'
-
-    _container_name: str
-
-    @staticmethod
-    def _format_elements(child_type: type, **children_as_dict):
-        res = dict()
-
-        # add dict-typed components
-        for k, v in children_as_dict.items():
-            if not isinstance(v, child_type):
-                raise TypeError(f'Should be instance of {child_type.__name__}. '
-                                f'But we got {type(v)}')
-            res[k] = v
-        return res
-
-    def __getitem__(self, item):
-        """
-        Overwrite the slice access (`self['']`).
-        """
-        children = self.__getattr__(self._container_name)
-        if item in children:
-            return children[item]
-        else:
-            raise ValueError(f'Unknown item {item}, we only found {list(children.keys())}')
-
-    def __getattr__(self, item):
-        """
-        Overwrite the dot access (`self.`).
-        """
-        name = super().__getattribute__('_container_name')
-        if item == '_container_name':
-            return name
-        children = super().__getattribute__(name)
-        if item == name:
-            return children
-        if item in children:
-            return children[item]
-        else:
-            return super().__getattribute__(item)
-
-    def add_elem(self, *elems, **elements):
-        """
-        Add new elements.
-
-        Args:
-          elements: children objects.
-        """
-        raise NotImplementedError('Must be implemented by the subclass.')
-
-
-class TreeNode(bst.mixin.Mixin):
-    __module__ = 'dendritex'
-
-    root_type: type
-
-    @staticmethod
-    def _root_leaf_pair_check(root: type, leaf: 'TreeNode'):
-        if hasattr(leaf, 'root_type'):
-            root_type = leaf.root_type
-        else:
-            raise ValueError('Child class should define "root_type" to '
-                             'specify the type of the root node. '
-                             f'But we did not found it in {leaf}')
-        if not issubclass(root, root_type):
-            raise TypeError(f'Type does not match. {leaf} requires a root with type '
-                            f'of {leaf.root_type}, but the root now is {root}.')
-
-    @staticmethod
-    def check_hierarchies(root: type, *leaves, check_fun: Callable = None, **named_leaves):
-        if check_fun is None:
-            check_fun = TreeNode._root_leaf_pair_check
-
-        for leaf in leaves:
-            if isinstance(leaf, bst.graph.Node):
-                check_fun(root, leaf)
-            elif isinstance(leaf, (list, tuple)):
-                TreeNode.check_hierarchies(root, *leaf, check_fun=check_fun)
-            elif isinstance(leaf, dict):
-                TreeNode.check_hierarchies(root, **leaf, check_fun=check_fun)
-            else:
-                raise ValueError(f'Do not support {type(leaf)}.')
-        for leaf in named_leaves.values():
-            if not isinstance(leaf, bst.graph.Node):
-                raise ValueError(f'Do not support {type(leaf)}. Must be instance of {bst.graph.Node}')
-            check_fun(root, leaf)
-
-
-class HHTypedNeuron(bst.nn.Dynamics, Container, DendriteDynamics):
+class HHTypedNeuron(bst.nn.Dynamics, Container, DiffEqModule):
     """
     The base class for the Hodgkin-Huxley typed neuronal membrane dynamics.
     """
@@ -218,23 +91,26 @@ class HHTypedNeuron(bst.nn.Dynamics, Container, DendriteDynamics):
     def current(self, *args, **kwargs):
         raise NotImplementedError('Must be implemented by the subclass.')
 
-    def before_integral(self, *args, **kwargs):
+    def pre_integral(self, *args, **kwargs):
         raise NotImplementedError
 
     def compute_derivative(self, *args, **kwargs):
         raise NotImplementedError('Must be implemented by the subclass.')
 
-    def post_derivative(self, *args, **kwargs):
-        raise NotImplementedError('Must be implemented by the subclass.')
+    def post_integral(self, *args, **kwargs):
+        """
+        For the neuron model, the `post_integral()` is the `update()` function.
+        """
+        return self.update(*args, **kwargs)
 
     def init_state(self, batch_size=None):
-        nodes = self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel).values()
+        nodes = self.nodes(IonChannel, allowed_hierarchy=(1, 1)).values()
         TreeNode.check_hierarchies(self.__class__, *nodes)
         for channel in nodes:
             channel.init_state(self.V.value, batch_size=batch_size)
 
     def reset_state(self, batch_size=None):
-        nodes = self.nodes(allowed_hierarchy=(1, 1)).filter(IonChannel).values()
+        nodes = self.nodes(IonChannel, allowed_hierarchy=(1, 1)).values()
         for channel in nodes:
             channel.reset_state(self.V.value, batch_size=batch_size)
 
@@ -249,7 +125,7 @@ class HHTypedNeuron(bst.nn.Dynamics, Container, DendriteDynamics):
         self.ion_channels.update(self._format_elements(IonChannel, **elements))
 
 
-class IonChannel(bst.graph.Node, TreeNode, DendriteDynamics):
+class IonChannel(bst.graph.Node, TreeNode, DiffEqModule):
     """
     The base class for ion channel modeling.
 
@@ -300,13 +176,13 @@ class IonChannel(bst.graph.Node, TreeNode, DendriteDynamics):
     def current(self, *args, **kwargs):
         raise NotImplementedError
 
-    def before_integral(self, *args, **kwargs):
+    def pre_integral(self, *args, **kwargs):
         pass
 
     def compute_derivative(self, *args, **kwargs):
         raise NotImplementedError
 
-    def post_derivative(self, *args, **kwargs):
+    def post_integral(self, *args, **kwargs):
         raise NotImplementedError('Must be implemented by the subclass.')
 
     def reset_state(self, *args, **kwargs):
@@ -347,26 +223,26 @@ class Ion(IonChannel, Container):
         name: Optional[str] = None,
         **channels
     ):
-        super().__init__(size, name=name, **channels)
+        super().__init__(size, name=name)
         self.channels: Dict[str, Channel] = dict()
         self.channels.update(self._format_elements(Channel, **channels))
 
         self._external_currents: Dict[str, Callable] = dict()
 
-    def before_integral(self, V):
+    def pre_integral(self, V):
         nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1))
         for node in nodes.values():
-            node.before_integral(V, self.pack_info())
+            node.pre_integral(V, self.pack_info())
 
     def compute_derivative(self, V):
         nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1))
         for node in nodes.values():
             node.compute_derivative(V, self.pack_info())
 
-    def post_derivative(self, V):
+    def post_integral(self, V):
         nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1))
         for node in nodes.values():
-            node.post_derivative(V, self.pack_info())
+            node.post_integral(V, self.pack_info())
 
     def current(self, V, include_external: bool = False):
         """
@@ -460,11 +336,11 @@ class MixIons(IonChannel, Container):
         self.channels: Dict[str, Channel] = dict()
         self.channels.update(self._format_elements(Channel, **channels))
 
-    def before_integral(self, V):
+    def pre_integral(self, V):
         nodes = tuple(bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
         for node in nodes:
             ion_infos = tuple([self._get_ion(ion).pack_info() for ion in node.root_type.__args__])
-            node.before_integral(V, *ion_infos)
+            node.pre_integral(V, *ion_infos)
 
     def compute_derivative(self, V):
         nodes = tuple(bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
@@ -472,11 +348,11 @@ class MixIons(IonChannel, Container):
             ion_infos = tuple([self._get_ion(ion).pack_info() for ion in node.root_type.__args__])
             node.compute_derivative(V, *ion_infos)
 
-    def post_derivative(self, V):
+    def post_integral(self, V):
         nodes = tuple(bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
         for node in nodes:
             ion_infos = tuple([self._get_ion(ion).pack_info() for ion in node.root_type.__args__])
-            node.post_derivative(V, *ion_infos)
+            node.post_integral(V, *ion_infos)
 
     def current(self, V):
         """Generate ion channel current.

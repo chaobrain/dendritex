@@ -12,7 +12,8 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import Channel, IonInfo, State4Integral
+from dendritex._base import Channel, IonInfo
+from dendritex._integrators import DiffEqState
 from dendritex.ions import Calcium
 
 __all__ = [
@@ -39,10 +40,10 @@ class CalciumChannel(Channel):
 
     root_type = Calcium
 
-    def before_integral(self, V, Ca: IonInfo):
+    def pre_integral(self, V, Ca: IonInfo):
         pass
 
-    def post_derivative(self, V, Ca: IonInfo):
+    def post_integral(self, V, Ca: IonInfo):
         pass
 
     def compute_derivative(self, V, Ca: IonInfo):
@@ -113,7 +114,7 @@ class ICaN_IS2008(CalciumChannel):
         self.phi = bst.init.param(phi, self.varshape, allow_none=False)
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         V = V.to_decimal(u.mV)
@@ -176,8 +177,8 @@ class _ICa_p2q_ss(CalciumChannel):
         self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -251,8 +252,8 @@ class _ICa_p2q_markov(CalciumChannel):
         self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         alpha, beta = self.f_p_alpha(V), self.f_p_beta(V)
@@ -785,9 +786,9 @@ class ICav12_Ma2020(CalciumChannel):
         self.VDI = 0.17
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.m = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.h = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.n = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.m = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.h = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.n = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.m.value = self.f_m_inf(V)
@@ -858,9 +859,9 @@ class ICav13_Ma2020(CalciumChannel):
         self.VDI = 1
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.m = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.h = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.n = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.m = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.h = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.n = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.m.value = self.f_m_inf(V)
@@ -937,8 +938,8 @@ class ICav23_Ma2020(CalciumChannel):
         self.eca = 140 * u.mV
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.m = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.h = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.m = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.h = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.m.value = self.f_m_inf(V)
@@ -1022,8 +1023,8 @@ class ICav31_Ma2020(CalciumChannel):
         self.z = 2
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.q = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -1113,8 +1114,8 @@ class ICaGrc_Ma2020(CalciumChannel):
         self.V0beta_u = -48
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.m = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.h = State4Integral(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.m = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.h = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.m.value = self.f_m_inf(V)
