@@ -1052,17 +1052,14 @@ class ICav31_Ma2020(CalciumChannel):
     def f_q_tau(self, V):
         return self.C_tau_h + self.A_tau_h / u.math.exp((V - self.v0_tau_h1) / self.k_tau_h1)
 
-    def ghk(self, V, Ca: IonInfo):
-        E = (1e-3) * V
-        zeta = (self.z * u.faraday_constant * E) / (u.gas_constant * (273.15 + self.T) * u.kelvin)
-        ci = Ca.C
-        co = 2 * u.mM  # co = Ca.C0 for Calciumdetailed
-        g_1 = 1e-6 * (self.z * u.faraday_constant) * (ci - co * u.math.exp(-zeta)) * (1 + zeta / 2)
-        g_2 = 1e-6 * (self.z * zeta * u.faraday_constant) * (ci - co * u.math.exp(-zeta)) / (1 - u.math.exp(-zeta))
+    def ghk(self, V, ci, co = 2 * u.mM):
+        zeta = (self.z * u.faraday_constant * V) / (u.gas_constant * u.celsius2kelvin(self.T))
+        g_1 = (self.z * u.faraday_constant) * (ci - co * u.math.exp(-zeta)) * (1 + zeta / 2)
+        g_2 = (self.z * zeta * u.faraday_constant) * (ci - co * u.math.exp(-zeta)) / (1 - u.math.exp(-zeta))
         return u.math.where(u.math.abs((1 - u.math.exp(-zeta))) <= 1e-6, g_1, g_2)
 
     def current(self, V, Ca: IonInfo):
-        return -1e3 * self.g_max * self.p.value ** 2 * self.q.value * self.ghk(V, Ca)
+        return -self.g_max * self.p.value ** 2 * self.q.value * self.ghk(V, Ca.C)
 
 
 class ICaGrc_Ma2020(CalciumChannel):
