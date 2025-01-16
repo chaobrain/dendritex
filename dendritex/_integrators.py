@@ -369,7 +369,7 @@ def diffrax_solve(
     rtol: Optional[float] = None,
     atol: Optional[float] = None,
     max_steps: Optional[int] = None,
-    adjoint: Union[str, dfx.AbstractAdjoint] = 'checkpoint',
+    adjoint: Any = 'checkpoint',
 ) -> Tuple[u.Quantity, bst.typing.PyTree[u.Quantity], Dict]:
     """
     Solve the differential equations using `diffrax <https://docs.kidger.site/diffrax>`_.
