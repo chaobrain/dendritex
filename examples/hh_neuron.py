@@ -13,13 +13,11 @@
 # limitations under the License.
 # ==============================================================================
 
-import brainstate as bst
 import brainunit as u
 import matplotlib.pyplot as plt
 
+import brainstate as bst
 import dendritex as dx
-
-bst.environ.set(dt=0.01 * u.ms)
 
 
 class HH(dx.neurons.SingleCompartment):
@@ -34,17 +32,25 @@ class HH(dx.neurons.SingleCompartment):
 
         self.IL = dx.channels.IL(size, E=-54.387 * u.mV, g_max=0.03 * (u.mS / u.cm ** 2))
 
+    def update(self, I_ext=0. * u.nA / u.cm ** 2):
+        bst.augment.vmap(
+            lambda: dx.exp_euler_step(self, bst.environ.get('t'), I_ext),
+            in_states=self.states()
+        )()
+        return self.post_integral(I_ext)
+
     def step_fun(self, t):
-        dx.rk2_step(self, t, 10 * u.nA / u.cm ** 2)
-        # spike = self.update()
+        with bst.environ.context(t=t):
+            spike = self.update(10 * u.nA / u.cm ** 2)
         return self.V.value
 
 
 hh = HH([1, 1])
 hh.init_state()
 
-times = u.math.arange(10000) * bst.environ.get_dt()
-vs = bst.compile.for_loop(hh.step_fun, times)
+with bst.environ.context(dt=0.1 * u.ms):
+    times = u.math.arange(0. * u.ms, 100 * u.ms, bst.environ.get_dt())
+    vs = bst.compile.for_loop(hh.step_fun, times)
 
 plt.plot(times, u.math.squeeze(vs))
 plt.show()
