@@ -333,6 +333,8 @@ class ICaT_HM1992(_ICa_p2q_ss):
     """
     __module__ = 'dendritex.channels'
 
+    root_type = Calcium
+
     def __init__(
         self,
         size: bst.typing.Size,
@@ -432,6 +434,8 @@ class ICaT_HP1992(_ICa_p2q_ss):
     """
     __module__ = 'dendritex.channels'
 
+    root_type = Calcium
+
     def __init__(
         self,
         size: bst.typing.Size,
@@ -528,6 +532,8 @@ class ICaHT_HM1992(_ICa_p2q_ss):
     """
     __module__ = 'dendritex.channels'
 
+    root_type = Calcium
+
     def __init__(
         self,
         size: bst.typing.Size,
@@ -623,6 +629,8 @@ class ICaHT_Re1993(_ICa_p2q_markov):
     """
     __module__ = 'dendritex.channels'
 
+    root_type = Calcium
+
     def __init__(
         self,
         size: bst.typing.Size,
@@ -712,6 +720,8 @@ class ICaL_IS2008(_ICa_p2q_ss):
     ICa_p2q_form
     """
     __module__ = 'dendritex.channels'
+
+    root_type = Calcium
 
     def __init__(
         self,

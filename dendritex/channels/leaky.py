@@ -58,6 +58,7 @@ class IL(LeakageChannel):
       The reversal potential.
     """
     __module__ = 'dendritex.channels'
+    root_type = HHTypedNeuron
 
     def __init__(
         self,

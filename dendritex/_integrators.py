@@ -15,16 +15,17 @@
 
 from __future__ import annotations
 
+import brainunit as u
 import importlib.util
+import jax
+import jax.numpy as jnp
 from dataclasses import dataclass
-from typing import Optional, Tuple, Callable, Dict, Union, Sequence
+from jax.scipy.linalg import expm
+from typing import Optional, Tuple, Callable, Dict, Any, Sequence
 
 import brainstate as bst
-import brainunit as u
-import jax
-from brainstate._state import record_state_value_write
-
 from ._misc import set_module_as
+from ._protocol import DiffEqState, DiffEqModule
 
 diffrax_installed = importlib.util.find_spec('diffrax') is not None
 if diffrax_installed:
@@ -54,6 +55,8 @@ __all__ = [
     'diffrax_solve',
     'DiffEqState',
     'DiffEqModule',
+
+    # runge-kutta explicit methods
     'euler_step',
     'midpoint_step',
     'rk2_step',
@@ -65,73 +68,18 @@ __all__ = [
     'ralston3_step',
     'rk4_step',
     'ralston4_step',
+
+    # exponential euler
+    'exp_euler_step',
 ]
 
 
-class DiffEqState(bst.ShortTermState):
-    """
-    A state that integrates the state of the system to the integral of the state.
-
-    Attributes
-    ----------
-    derivative: The derivative of the differential equation state.
-    diffusion: The diffusion of the differential equation state.
-
-    """
-
-    __module__ = 'dendritex'
-
-    # derivative of this state
-    derivative: bst.typing.PyTree
-    diffusion: bst.typing.PyTree
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._derivative = None
-        self._diffusion = None
-
-    @property
-    def derivative(self):
-        """
-        The derivative of the state.
-
-        It is used to compute the derivative of the ODE system,
-        or the drift of the SDE system.
-        """
-        return self._derivative
-
-    @derivative.setter
-    def derivative(self, value):
-        record_state_value_write(self)
-        self._derivative = value
-
-    @property
-    def diffusion(self):
-        """
-        The diffusion of the state.
-
-        It is used to compute the diffusion of the SDE system.
-        If it is None, the system is considered as an ODE system.
-        """
-        return self._diffusion
-
-    @diffusion.setter
-    def diffusion(self, value):
-        record_state_value_write(self)
-        self._diffusion = value
-
-
-class DiffEqModule(bst.mixin.Mixin):
-    __module__ = 'dendritex'
-
-    def pre_integral(self, *args, **kwargs):
-        pass
-
-    def compute_derivative(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def post_integral(self, *args, **kwargs):
-        pass
+def _check_diffeq_state_derivative(st: DiffEqState, dt):
+    a = u.get_unit(st.derivative) * u.get_unit(dt)
+    b = u.get_unit(st.value)
+    assert a.has_same_dim(b), f'Unit mismatch. Got {a} != {b}'
+    if isinstance(st.derivative, u.Quantity):
+        st.derivative = st.derivative.in_unit(u.get_unit(st.value) / u.get_unit(dt))
 
 
 def _is_quantity(x):
@@ -198,11 +146,7 @@ def _diffrax_solve(
                 derivatives = []
                 for st in trace.states:
                     if isinstance(st, DiffEqState):
-                        a = u.get_unit(st.derivative) * u.ms
-                        b = u.get_unit(st.value)
-                        assert a.has_same_dim(b), f'Unit mismatch. Got {a} != {b}'
-                        if isinstance(st.derivative, u.Quantity):
-                            st.derivative = st.derivative.in_unit(u.get_unit(st.value) / u.ms)
+                        _check_diffeq_state_derivative(st, dt0)
                         derivatives.append(st.derivative)
                     else:
                         raise ValueError(f"State {st} is not for integral.")
@@ -457,7 +401,7 @@ def _rk_update(
 def _general_rk_step(
     tableau: ButcherTableau,
     target: DiffEqModule,
-    t: jax.typing.ArrayLike,
+    t: u.Quantity[u.second],
     *args
 ):
     dt = bst.environ.get_dt()
@@ -502,6 +446,9 @@ def _general_rk_step(
         # update states with derivatives
         for st, y0_, *ks_ in zip(states, y0, *ks):
             _rk_update(tableau.B, st, y0_, *ks_)
+
+    # after one-step integration
+    target.post_integral(*args)
 
 
 euler_tableau = ButcherTableau(
@@ -580,55 +527,247 @@ ralston4_tableau = ButcherTableau(
 
 
 @set_module_as('dendritex')
-def euler_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def euler_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The Euler step for the differential equations.
+    """
     _general_rk_step(euler_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def midpoint_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def midpoint_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The midpoint step for the differential equations.
+    """
     _general_rk_step(midpoint_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def rk2_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def rk2_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The second-order Runge-Kutta step for the differential equations.
+    """
     _general_rk_step(rk2_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def heun2_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def heun2_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The Heun's second-order Runge-Kutta step for the differential equations.
+    """
     _general_rk_step(heun2_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def ralston2_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def ralston2_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The Ralston's second-order Runge-Kutta step for the differential equations.
+    """
     _general_rk_step(ralston2_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def rk3_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def rk3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The third-order Runge-Kutta step for the differential equations.
+    """
     _general_rk_step(rk3_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def heun3_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def heun3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The Heun's third-order Runge-Kutta step for the differential equations.
+    """
     _general_rk_step(heun3_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def ssprk3_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def ssprk3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The Strong Stability Preserving Runge-Kutta 3rd order step for the differential equations.
+    """
     _general_rk_step(ssprk3_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def ralston3_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def ralston3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The Ralston's third-order Runge-Kutta step for the differential equations.
+    """
     _general_rk_step(ralston3_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def rk4_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def rk4_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The fourth-order Runge-Kutta step for the differential equations.
+    """
     _general_rk_step(rk4_tableau, target, t, *args)
 
 
 @set_module_as('dendritex')
-def ralston4_step(target: DiffEqModule, t: bst.typing.ArrayLike, *args):
+def ralston4_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The Ralston's fourth-order Runge-Kutta step for the differential equations.
+    """
     _general_rk_step(ralston4_tableau, target, t, *args)
+
+
+def exponential_euler(f, y0, t, dt, args=()):
+    r"""
+    Exponential Euler Integrator for multidimensional ODEs.
+
+    $$
+    {\hat {u}}_{n+1}=u_{n}+h_{n}\ \varphi _{1}(h_{n}L_{n})f(u_{n}),
+    $$
+
+    where
+
+    $$
+    \varphi _{1}(z)={\frac {e^{z}-1}{z}},
+    $$
+
+    Parameters:
+        f : callable
+            Nonlinear/time-dependent part of the ODE, g(t, y, *args).
+            Note here `y` should be dimensionless, `args` can be arrays with physical units.
+        y0 : array_like
+            Initial condition, shape (n,).
+        t : float
+            Current time.
+        dt : float
+            Time step.
+        args : tuple, optional
+            Additional arguments for the function f.
+
+    Returns:
+        y : ndarray
+            Solution array, shape (m, n).
+    """
+    dt = u.get_magnitude(dt)
+    A, df, aux = bst.augment.jacfwd(lambda y: f(t, y, *args), return_value=True, has_aux=True)(y0)
+
+    # Compute exp(hA) and phi(hA)
+    n = y0.shape[-1]
+    exp_hA = expm(dt * A)  # Matrix exponential
+    phi_hA = jnp.linalg.solve(A, (exp_hA - jnp.eye(n)))
+    # # Regularize if A is ill-conditioned
+    # phi_hA = (
+    #     jnp.linalg.solve(A, (exp_hA - jnp.eye(n)))
+    #     if jnp.linalg.cond(A) < 1e12 else
+    #     jnp.eye(n)
+    # )
+    y1 = y0 + phi_hA @ df
+    return y1, aux
+
+
+def _dict_derivative_to_arr(a_dict: Dict[Any, DiffEqState]):
+    a_dict = {key: val.derivative for key, val in a_dict.items()}
+    leaves = jax.tree.leaves(a_dict)
+    return jnp.concatenate(leaves, axis=-1)
+
+
+def _dict_state_to_arr(a_dict: Dict[Any, bst.State]):
+    a_dict = {key: val.value for key, val in a_dict.items()}
+    leaves = jax.tree.leaves(a_dict)
+    return jnp.concatenate(leaves, axis=-1)
+
+
+def _assign_arr_to_states(vals: jax.Array, states: Dict[Any, bst.State]):
+    leaves, tree_def = jax.tree.flatten({key: state.value for key, state in states.items()})
+    index = 0
+    vals_like_leaves = []
+    for leaf in leaves:
+        vals_like_leaves.append(vals[..., index: index + leaf.shape[-1]])
+        index += leaf.shape[-1]
+    vals_like_states = jax.tree.unflatten(tree_def, vals_like_leaves)
+    for key, state_val in vals_like_states.items():
+        states[key].value = state_val
+
+
+def _transform_diffeq_module_into_dimensionless_fn(target: DiffEqModule):
+    diffeq_states, other_states = bst.graph.states(target).split(DiffEqState, ...)
+
+    def vector_field(t, y, *args):
+        # y: dimensionless states
+        _assign_arr_to_states(y, diffeq_states)
+        target.compute_derivative(*args)
+        # derivative_arr: dimensionless derivatives
+        for st in diffeq_states.values():
+            _check_diffeq_state_derivative(st, bst.environ.get_dt())
+        derivative_arr = _dict_derivative_to_arr(diffeq_states)
+        other_state_vals = {key: st.value for key, st in other_states.items()}
+        return derivative_arr, other_state_vals
+
+    return vector_field, diffeq_states, other_states
+
+
+@set_module_as('dendritex')
+def exp_euler_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
+    """
+    The explicit Euler step for the differential equations.
+    """
+    # pre integral
+    dt = bst.environ.get_dt()
+    target.pre_integral(*args)
+    dimensionless_fn, diffeq_states, other_states = _transform_diffeq_module_into_dimensionless_fn(target)
+
+    # one-step integration
+    diffeq_vals, other_vals = exponential_euler(
+        dimensionless_fn,
+        _dict_state_to_arr(diffeq_states),
+        t,
+        dt,
+        args
+    )
+
+    # post integral
+    _assign_arr_to_states(diffeq_vals, diffeq_states)
+    for key, val in other_vals.items():
+        other_states[key].value = val
+
+
+def implicit_euler(f, y0, t, dt, args=()):
+    r"""
+    Implicit Euler Integrator for multidimensional ODEs.
+
+    $$
+    u_{n+1}=u_{n}+h_{n}\ f(t_{n+1}, u_{n+1}),
+    $$
+
+    Parameters:
+        f : callable
+            Nonlinear/time-dependent part of the ODE, g(t, y, *args).
+            Note here `y` should be dimensionless, `args` can be arrays with physical units.
+        y0 : array_like
+            Initial condition, shape (n,).
+        t : float
+            Current time.
+        dt : float
+            Time step.
+        args : tuple, optional
+            Additional arguments for the function f.
+
+    Returns:
+        y : ndarray
+            Solution array, shape (m, n).
+    """
+
+    def g(y1):
+        return y1 - y0 - dt * f(t + dt, y1, *args)
+
+    # return y1, aux
+
+
+def get_integrator(name: str) -> Callable:
+    """
+    Get the integrator function by name.
+
+    Args:
+      name: The name of the integrator.
+
+    Returns:
+      The integrator function.
+    """
+    return globals()[f'{name}_step']
