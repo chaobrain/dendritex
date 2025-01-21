@@ -24,7 +24,7 @@ import brainstate as bst
 import numpy as np
 from brainstate.mixin import _JointGenericAlias
 
-from ._integrators import DiffEqModule
+from ._protocol import DiffEqModule
 from ._misc import set_module_as, Container, TreeNode
 
 __all__ = [
@@ -101,7 +101,7 @@ class HHTypedNeuron(bst.nn.Dynamics, Container, DiffEqModule):
         """
         For the neuron model, the `post_integral()` is the `update()` function.
         """
-        return self.update(*args, **kwargs)
+        pass
 
     def init_state(self, batch_size=None):
         nodes = self.nodes(IonChannel, allowed_hierarchy=(1, 1)).values()
@@ -193,6 +193,13 @@ class IonChannel(bst.graph.Node, TreeNode, DiffEqModule):
 
 
 class IonInfo(NamedTuple):
+    """
+    The information of the ion.
+
+    Attributes:
+        E: The reversal potential.
+        C: The ion concentration.
+    """
     C: bst.typing.ArrayLike
     E: bst.typing.ArrayLike
 
@@ -210,12 +217,6 @@ class Ion(IonChannel, Container):
 
     # The type of the master object.
     root_type = HHTypedNeuron
-
-    # Reversal potential.
-    E: bst.typing.ArrayLike | bst.State
-
-    # Ion concentration.
-    C: bst.typing.ArrayLike | bst.State
 
     def __init__(
         self,
@@ -290,7 +291,7 @@ class Ion(IonChannel, Container):
             raise ValueError
         self._external_currents[key] = fun
 
-    def pack_info(self):
+    def pack_info(self) -> IonInfo:
         E = self.E
         E = E.value if isinstance(E, bst.State) else E
         C = self.C.value if isinstance(self.C, bst.State) else self.C

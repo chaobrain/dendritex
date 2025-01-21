@@ -18,7 +18,7 @@ from __future__ import annotations
 from typing import Union, Callable, Optional
 
 import brainstate as bst
-import brainunit as bu
+import brainunit as u
 
 from dendritex._base import Ion
 
@@ -45,8 +45,8 @@ class SodiumFixed(Sodium):
     def __init__(
         self,
         size: bst.typing.Size,
-        E: Union[bst.typing.ArrayLike, Callable] = 50. * bu.mV,
-        C: Union[bst.typing.ArrayLike, Callable] = 0.0400811 * bu.mM,
+        E: Union[bst.typing.ArrayLike, Callable] = 50. * u.mV,
+        C: Union[bst.typing.ArrayLike, Callable] = 0.0400811 * u.mM,
         name: Optional[str] = None,
         **channels
     ):

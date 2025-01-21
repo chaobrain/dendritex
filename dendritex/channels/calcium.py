@@ -333,6 +333,8 @@ class ICaT_HM1992(_ICa_p2q_ss):
     """
     __module__ = 'dendritex.channels'
 
+    root_type = Calcium
+
     def __init__(
         self,
         size: bst.typing.Size,
@@ -432,6 +434,8 @@ class ICaT_HP1992(_ICa_p2q_ss):
     """
     __module__ = 'dendritex.channels'
 
+    root_type = Calcium
+
     def __init__(
         self,
         size: bst.typing.Size,
@@ -528,6 +532,8 @@ class ICaHT_HM1992(_ICa_p2q_ss):
     """
     __module__ = 'dendritex.channels'
 
+    root_type = Calcium
+
     def __init__(
         self,
         size: bst.typing.Size,
@@ -608,10 +614,10 @@ class ICaHT_Re1993(_ICa_p2q_markov):
       The brainpy_object temperature factor of :math:`q` channel.
     phi_p : optional, float, ArrayType, Callable, Initializer
       The temperature factor for channel :math:`p`.
-      If `None`, :math:`\phi_p = \mathrm{T_base_p}^{\frac{T-23}{10}}`.
+      If `None`, $\phi_p = \mathrm{T_base_p}^{\frac{T-23}{10}}$.
     phi_q : optional, float, ArrayType, Callable, Initializer
       The temperature factor for channel :math:`q`.
-      If `None`, :math:`\phi_q = \mathrm{T_base_q}^{\frac{T-23}{10}}`.
+      If `None`, $\phi_q = \mathrm{T_base_q}^{\frac{T-23}{10}}$.
 
     References
     ----------
@@ -622,6 +628,8 @@ class ICaHT_Re1993(_ICa_p2q_markov):
 
     """
     __module__ = 'dendritex.channels'
+
+    root_type = Calcium
 
     def __init__(
         self,
@@ -712,6 +720,8 @@ class ICaL_IS2008(_ICa_p2q_ss):
     ICa_p2q_form
     """
     __module__ = 'dendritex.channels'
+
+    root_type = Calcium
 
     def __init__(
         self,

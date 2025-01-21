@@ -15,13 +15,12 @@
 
 from __future__ import annotations
 
+import brainunit as u
+import jax
+import numpy as np
 from typing import Union, Optional, Callable, Sequence, Tuple
 
 import brainstate as bst
-import brainunit as bu
-import jax
-import numpy as np
-
 from dendritex._base import HHTypedNeuron, IonChannel
 from dendritex._integrators import DiffEqState
 
@@ -55,15 +54,15 @@ def diffusive_coupling(potentials, coo_ids, resistances):
     #    The output of the operator, which computes the summation of all differences of potentials.
     #    outs[i] = sum((potentials[i] - potentials[j]) / resistances[j] for j in neighbors of i)
 
-    assert isinstance(potentials, bu.Quantity), 'The potentials should be a Quantity.'
-    assert isinstance(resistances, bu.Quantity), 'The conductance should be a Quantity.'
+    assert isinstance(potentials, u.Quantity), 'The potentials should be a Quantity.'
+    assert isinstance(resistances, u.Quantity), 'The conductance should be a Quantity.'
     # assert potentials.ndim == 1, f'The potentials should be a 1D array. Got {potentials.shape}.'
     assert resistances.shape[-1] == coo_ids.shape[0], ('The length of conductance should be equal '
                                                        'to the number of connections.')
     assert coo_ids.ndim == 2, f'The coo_ids should be a 2D array. Got {coo_ids.shape}.'
     assert resistances.ndim == 1, f'The conductance should be a 1D array. Got {resistances.shape}.'
 
-    outs = bu.Quantity(bu.math.zeros(potentials.shape), unit=potentials.unit / resistances.unit)
+    outs = u.Quantity(u.math.zeros(potentials.shape), unit=potentials.unit / resistances.unit)
     pre_ids = coo_ids[:, 0]
     post_ids = coo_ids[:, 1]
     diff = (potentials[..., pre_ids] - potentials[..., post_ids]) / resistances
@@ -128,14 +127,14 @@ class MultiCompartment(HHTypedNeuron):
         connection: Sequence[Tuple[int, int]] | np.ndarray,
 
         # neuron parameters
-        Ra: bst.typing.ArrayLike = 100. * (bu.ohm * bu.cm),
-        cm: bst.typing.ArrayLike = 1.0 * (bu.uF / bu.cm ** 2),
-        diam: bst.typing.ArrayLike = 1. * bu.um,
-        L: bst.typing.ArrayLike = 10. * bu.um,
+        Ra: bst.typing.ArrayLike = 100. * (u.ohm * u.cm),
+        cm: bst.typing.ArrayLike = 1.0 * (u.uF / u.cm ** 2),
+        diam: bst.typing.ArrayLike = 1. * u.um,
+        L: bst.typing.ArrayLike = 10. * u.um,
 
         # membrane potentials
-        V_th: Union[bst.typing.ArrayLike, Callable] = 0. * bu.mV,
-        V_initializer: Union[bst.typing.ArrayLike, Callable] = bst.init.Uniform(-70 * bu.mV, -60. * bu.mV),
+        V_th: Union[bst.typing.ArrayLike, Callable] = 0. * u.mV,
+        V_initializer: Union[bst.typing.ArrayLike, Callable] = bst.init.Uniform(-70 * u.mV, -60. * u.mV),
         spk_fun: Callable = bst.surrogate.ReluGrad(),
 
         # others
@@ -186,14 +185,14 @@ class MultiCompartment(HHTypedNeuron):
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.pre_integral(self.V.value)
 
-    def compute_derivative(self, I_ext=0. * bu.nA):
+    def compute_derivative(self, I_ext=0. * u.nA):
         # [ Compute the derivative of membrane potential ]
         # 1. external currents
         I_ext = I_ext / self.A
         # 1.axial currents
         I_axial = diffusive_coupling(self.V.value, self.connection, self.resistances) / self.A
         # 2. synapse currents
-        I_syn = self.sum_current_inputs(0. * bu.nA / bu.cm ** 2, self.V.value)
+        I_syn = self.sum_current_inputs(0. * u.nA / u.cm ** 2, self.V.value)
         # 3. channel currents
         I_channel = None
         for key, ch in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
@@ -206,11 +205,16 @@ class MultiCompartment(HHTypedNeuron):
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.compute_derivative(self.V.value)
 
-    def update(self, *args):
+    def post_integral(self, I_ext=0. * u.nA):
         self.V.value = self.sum_delta_inputs(init=self.V.value)
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.post_integral(self.V.value)
         return self.get_spike()
+
+    def update(self, I_ext=0. * u.nA):
+        t = bst.environ.get('t')
+        self.solver(self, t, I_ext)
+        return self.post_integral(I_ext)
 
     def get_spike(self):
         if not hasattr(self, '_v_last_time'):

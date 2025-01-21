@@ -18,6 +18,7 @@ from dendritex._integrators import DiffEqState
 from dendritex.ions import Calcium, Potassium
 
 __all__ = [
+    'KCaChannel',
     'IAHP_De1994',
     'IKca3_1_Ma2020',
     'IKca2_2_Ma2020',
@@ -385,7 +386,7 @@ class IKca1_1_Ma2020(KCaChannel):
         return self.g_max * (self.O1.value + self.O2.value) * (K.E - V)
 
     def pre_integral(self, V, K: IonInfo, Ca: IonInfo):
-        self.normalize_states([getattr(self, f'C{i}') for i in range(5)] + [getattr(self, f'O{i}') for i in range(5)])
+        pass
 
     def normalize_states(self, states):
         total = 0.
@@ -396,6 +397,7 @@ class IKca1_1_Ma2020(KCaChannel):
             state.value = state.value / total
 
     def compute_derivative(self, V, K: IonInfo, Ca: IonInfo):
+        self.normalize_states([getattr(self, f'C{i}') for i in range(5)] + [getattr(self, f'O{i}') for i in range(5)])
 
         self.C0.derivative = (self.C1 * self.c10(Ca) + self.O0 * self.b0(V) - self.C0 * (
             self.c01(Ca) + self.f0(V))) / bu.ms

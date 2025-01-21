@@ -42,7 +42,7 @@ classifiers = [
 ]
 
 
-keywords = ['physical unit', 'physical quantity', 'brain modeling']
+keywords = ['dendritic computation', 'dendritic modeling', 'brain modeling', 'neuron simulation']
 
 dependencies = [
     'jax',

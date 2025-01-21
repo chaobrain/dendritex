@@ -15,13 +15,13 @@
 
 from __future__ import annotations
 
+import brainunit as u
 from typing import Union, Optional, Callable
 
 import brainstate as bst
-import brainunit as u
-
 from dendritex._base import HHTypedNeuron, IonChannel
 from dendritex._integrators import DiffEqState
+from dendritex._integrators import get_integrator
 
 __all__ = [
     'SingleCompartment',
@@ -75,14 +75,17 @@ class SingleCompartment(HHTypedNeuron):
         V_th: Union[bst.typing.ArrayLike, Callable] = 0. * u.mV,
         V_initializer: Union[bst.typing.ArrayLike, Callable] = bst.init.Uniform(-70 * u.mV, -60. * u.mV),
         spk_fun: Callable = bst.surrogate.ReluGrad(),
+        solver: str = 'rk2',
         name: Optional[str] = None,
         **ion_channels
     ):
         super().__init__(size, name=name, **ion_channels)
+        assert self.n_compartment == 1, "SingleCompartment neuron should have only one compartment."
         self.C = bst.init.param(C, self.varshape)
         self.V_th = bst.init.param(V_th, self.varshape)
         self.V_initializer = V_initializer
         self.spk_fun = spk_fun
+        self.solver = get_integrator(solver)
 
     def init_state(self, batch_size=None):
         self.V = DiffEqState(bst.init.param(self.V_initializer, self.varshape, batch_size))
@@ -94,37 +97,51 @@ class SingleCompartment(HHTypedNeuron):
         self._v_last_time = None
         super().init_state(batch_size)
 
-    def pre_integral(self, *args):
+    def pre_integral(self, I_ext=0. * u.nA / u.cm ** 2):
+        # record the last time membrane potential
         self._v_last_time = self.V.value
+        # pre integral
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.pre_integral(self.V.value)
 
-    def compute_derivative(self, x=0. * u.nA / u.cm ** 2):
+    def compute_derivative(self, I_ext=0. * u.nA / u.cm ** 2):
         # [ Compute the derivative of membrane potential ]
         # 1. inputs + 2. synapses
-        x = self.sum_current_inputs(x, self.V.value)
+        I_ext = self.sum_current_inputs(I_ext, self.V.value)
 
         # 3. channels
         for key, ch in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
-            x = x + ch.current(self.V.value)
+            I_ext = I_ext + ch.current(self.V.value)
 
         # 4. derivatives
-        self.V.derivative = x / self.C
+        self.V.derivative = I_ext / self.C
 
         # [ integrate dynamics of ion and ion channels ]
         # check whether the children channels have the correct parents.
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.compute_derivative(self.V.value)
 
-    def update(self, *args):
+    def post_integral(self, I_ext=0. * u.nA / u.cm ** 2):
+        # post integral
         self.V.value = self.sum_delta_inputs(init=self.V.value)
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.post_integral(self.V.value)
         return self.get_spike()
+
+    def update(self, I_ext=0. * u.nA / u.cm ** 2):
+        # integration
+        t = bst.environ.get('t')
+        self.solver(self, t, I_ext)
+        # post integral
+        return self.post_integral(I_ext)
 
     def get_spike(self):
         if not hasattr(self, '_v_last_time'):
             raise ValueError("The membrane potential is not initialized.")
         if self._v_last_time is None:
             raise ValueError("The membrane potential is not initialized.")
-        return self.spk_fun(self.V.value - self.V_th) * self.spk_fun(self.V_th - self._v_last_time)
+        denom = 20.0 * u.mV
+        return (
+            self.spk_fun((self.V.value - self.V_th) / denom) *
+            self.spk_fun((self.V_th - self._v_last_time) / denom)
+        )

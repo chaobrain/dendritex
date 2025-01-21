@@ -23,9 +23,18 @@ from ._base import *
 from ._base import __all__ as _base_all
 from ._integrators import *
 from ._integrators import __all__ as _integrators_all
+from ._protocol import *
+from ._protocol import __all__ as _protocol_all
 
 __all__ = (
-    ['neurons', 'ions', 'channels'] +
-    _base_all +
-    _integrators_all
+    ['neurons', 'ions', 'channels']
+    + _base_all
+    + _integrators_all
+    + _protocol_all
+)
+
+del (
+    _base_all,
+    _integrators_all,
+    _protocol_all,
 )
