@@ -29,7 +29,7 @@ def set_module_as(name: str):
 
 
 class Container(bst.mixin.Mixin):
-    __module__ = 'dendritex'
+    __module__ = 'braincell'
 
     _container_name: str
 
@@ -78,7 +78,7 @@ class Container(bst.mixin.Mixin):
 
 
 class TreeNode(bst.mixin.Mixin):
-    __module__ = 'dendritex'
+    __module__ = 'braincell'
 
     root_type: type
 

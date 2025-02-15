@@ -5,9 +5,13 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 exclude = [
-    "docs*", "build*", "dist*", "examples*",
-    "dendritex.egg-info*", "dendritex/__pycache__*",
-    "dendritex/__init__.py"
+    "docs*",
+    "build*",
+    "dist*",
+    "examples*",
+    "braincell.egg-info*",
+    "braincell/__pycache__*",
+    "braincell/__init__.py"
 ]
 
 
@@ -16,12 +20,12 @@ universal = true
 
 
 [project]
-name = "dendritex"
-description = "Dendrite Modeling in Python"
+name = "braincell"
+description = "Biologically Detailed Brain Cell Modeling in JAX"
 readme = 'README.md'
 license = { text = 'Apache-2.0 license' }
 requires-python = '>=3.9'
-authors = [{ name = 'dendritex Developers', email = 'chao.brain@qq.com' }]
+authors = [{ name = 'braincell Developers', email = 'chao.brain@qq.com' }]
 classifiers = [
     'Natural Language :: English',
     'Operating System :: OS Independent',
@@ -55,11 +59,11 @@ dependencies = [
 dynamic = ['version']
 
 [tool.flit.module]
-name = "dendritex"
+name = "braincell"
 
 [project.urls]
-homepage = 'http://github.com/chaobrain/dendritex'
-repository = 'http://github.com/chaobrain/dendritex'
+homepage = 'http://github.com/chaobrain/braincell'
+repository = 'http://github.com/chaobrain/braincell'
 
 [project.optional-dependencies]
 testing = [

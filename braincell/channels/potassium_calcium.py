@@ -13,9 +13,9 @@ import brainstate as bst
 import brainunit as bu
 import jax
 
-from dendritex._base import IonInfo, Channel
-from dendritex._integrators import DiffEqState
-from dendritex.ions import Calcium, Potassium
+from braincell._base import IonInfo, Channel
+from braincell._integrators import DiffEqState
+from braincell.ions import Calcium, Potassium
 
 __all__ = [
     'KCaChannel',
@@ -28,7 +28,7 @@ __all__ = [
 
 
 class KCaChannel(Channel):
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 
@@ -96,7 +96,7 @@ class IAHP_De1994(KCaChannel):
            thalamic reticular nucleus." Journal of neurophysiology 72.2 (1994): 803-818.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 
@@ -148,7 +148,7 @@ class IKca3_1_Ma2020(KCaChannel):
     : Adapted from /usr/local/neuron/demo/release/nachan.mod - squid
     :   by Andrew Davison, The Babraham Institute  [Brain Res Bulletin, 2000]
     '''
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 
@@ -221,7 +221,7 @@ class IKca2_2_Ma2020(KCaChannel):
                 electroresponsiveness in cerebellar golgi cells
                 Frontiers in Cellular Neuroscience 2:2
     '''
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 
@@ -329,7 +329,7 @@ class IKca1_1_Ma2020(KCaChannel):
     Written by Sungho Hong, Okinawa Institute of Science and Technology, March 2009.
     Contact: Sungho Hong (shhong@oist.jp)
     '''
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 

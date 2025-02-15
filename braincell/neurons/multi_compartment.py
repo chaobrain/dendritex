@@ -21,8 +21,8 @@ import numpy as np
 from typing import Union, Optional, Callable, Sequence, Tuple
 
 import brainstate as bst
-from dendritex._base import HHTypedNeuron, IonChannel
-from dendritex._integrators import DiffEqState
+from braincell._base import HHTypedNeuron, IonChannel
+from braincell._integrators import DiffEqState
 
 __all__ = [
     'MultiCompartment',
@@ -117,7 +117,7 @@ def init_coupling_weight(n_compartment, connection, diam, L, Ra):
 
 
 class MultiCompartment(HHTypedNeuron):
-    __module__ = 'dendritex.neurons'
+    __module__ = 'braincell.neurons'
 
     def __init__(
         self,

@@ -19,9 +19,9 @@ import brainunit as u
 from typing import Union, Optional, Callable
 
 import brainstate as bst
-from dendritex._base import HHTypedNeuron, IonChannel
-from dendritex._integrators import DiffEqState
-from dendritex._integrators import get_integrator
+from braincell._base import HHTypedNeuron, IonChannel
+from braincell._integrators import DiffEqState
+from braincell._integrators import get_integrator
 
 __all__ = [
     'SingleCompartment',
@@ -66,7 +66,7 @@ class SingleCompartment(HHTypedNeuron):
     name : optional, str
       The neuron group name.
     """
-    __module__ = 'dendritex.neurons'
+    __module__ = 'braincell.neurons'
 
     def __init__(
         self,
@@ -126,7 +126,7 @@ class SingleCompartment(HHTypedNeuron):
         self.V.value = self.sum_delta_inputs(init=self.V.value)
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.post_integral(self.V.value)
-        return self.get_spike()
+        # return self.get_spike()
 
     def update(self, I_ext=0. * u.nA / u.cm ** 2):
         # integration

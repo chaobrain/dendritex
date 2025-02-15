@@ -12,9 +12,9 @@ from typing import Union, Callable, Optional, Sequence
 import brainstate as bst
 import brainunit as bu
 
-from dendritex._base import Channel, IonInfo
-from dendritex._integrators import DiffEqState
-from dendritex.ions import Potassium
+from braincell._base import Channel, IonInfo
+from braincell._integrators import DiffEqState
+from braincell.ions import Potassium
 
 __all__ = [
     'PotassiumChannel',
@@ -37,7 +37,7 @@ __all__ = [
 
 class PotassiumChannel(Channel):
     """Base class for sodium channel dynamics."""
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Potassium
 
@@ -164,7 +164,7 @@ class IKDR_Ba2002(_IK_p4_markov):
            and transitions to activated states." Journal of neuroscience 22.19 (2002): 8691-8704.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -234,7 +234,7 @@ class IK_TM1991(_IK_p4_markov):
     --------
     INa_TM1991
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -297,7 +297,7 @@ class IK_HH1952(_IK_p4_markov):
     --------
     INa_HH1952
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -457,7 +457,7 @@ class IKA1_HM1992(_IKA_p4q_ss):
     --------
     IKA2_HM1992
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -549,7 +549,7 @@ class IKA2_HM1992(_IKA_p4q_ss):
     --------
     IKA1_HM1992
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -720,7 +720,7 @@ class IKK2A_HM1992(_IKK2_pq_ss):
            neurons." Journal of neurophysiology 66.4 (1991): 1316-1328.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -806,7 +806,7 @@ class IKK2B_HM1992(_IKK2_pq_ss):
            neurons." Journal of neurophysiology 66.4 (1991): 1316-1328.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -888,7 +888,7 @@ class IKNI_Ya1989(PotassiumChannel):
     .. [1] Yamada, Walter M. "Multiple channels and calcium dynamics." Methods in neuronal modeling (1989): 97-133.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -942,7 +942,7 @@ class IK_Leak(PotassiumChannel):
       The potassium leakage conductance which is modulated by both
       acetylcholine and norepinephrine.
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Potassium
 
@@ -997,7 +997,7 @@ class IKv11_Ak2007(PotassiumChannel):
     Date of Implementation: April 2007
     Contact: akemann@brain.riken.jp
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -1071,7 +1071,7 @@ class IKv34_Ma2020(PotassiumChannel):
     : HH TEA-sensitive Purkinje potassium current
     : Created 8/5/02 - nwg
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -1160,7 +1160,7 @@ class IKv43_Ma2020(PotassiumChannel):
       Author: E.D'Angelo, T.Nieus, A. Fontana
       Last revised: Egidio 3.12.2003
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -1263,7 +1263,7 @@ class IKM_Grc_Ma2020(PotassiumChannel):
       Author: A. Fontana
       CoAuthor: T.Nieus Last revised: 20.11.99
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,

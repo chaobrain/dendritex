@@ -32,7 +32,7 @@ import shutil
 
 sys.path.insert(0, os.path.abspath('../'))
 
-import dendritex
+import braincell
 os.makedirs('apis/', exist_ok=True)
 changelogs = [
   ('../changelog.md', 'apis/changelog.md'),
@@ -50,12 +50,12 @@ auto_generater.main()
 
 # -- Project information -----------------------------------------------------
 
-project = 'dendritex'
-copyright = '2024, dendritex'
+project = 'braincell'
+copyright = '2025, braincell'
 author = 'BDP Ecosystem'
 
 # The full version, including alpha/beta/rc tags
-release = dendritex.__version__
+release = braincell.__version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -115,11 +115,11 @@ myst_enable_extensions = [
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = "sphinx_book_theme"
-html_logo = "_static/dendritex.png"
-html_title = "dendritex"
+html_logo = "_static/braincell.png"
+html_title = "braincell"
 html_copy_source = True
 html_sourcelink_suffix = ""
-html_favicon = "_static/dendritex.png"
+html_favicon = "_static/braincell.png"
 html_last_updated_fmt = ""
 
 # Add any paths that contain custom static files (such as style sheets) here,

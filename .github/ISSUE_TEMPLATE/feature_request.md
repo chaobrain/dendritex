@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a new idea or improvement for ``dendritex``
+about: Suggest a new idea or improvement for ``braincell``
 title: ''
 labels: enhancement
 assignees: ''

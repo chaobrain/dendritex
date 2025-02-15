@@ -1,7 +1,7 @@
-``dendritex`` documentation
+``braincell`` documentation
 ===========================
 
-`dendritex <https://github.com/chaoming0625/dendritex>`_ provides dendritic modeling capabilities in JAX for brain dynamics.
+`braincell <https://github.com/chaobrain/braincell>`_ provides dendritic modeling capabilities in JAX for brain dynamics.
 
 
 
@@ -18,19 +18,19 @@ Installation
 
        .. code-block:: bash
 
-          pip install -U dendritex[cpu]
+          pip install -U braincell[cpu]
 
     .. tab-item:: GPU (CUDA 12.0)
 
        .. code-block:: bash
 
-          pip install -U dendritex[cuda12]
+          pip install -U braincell[cuda12]
 
     .. tab-item:: TPU
 
        .. code-block:: bash
 
-          pip install -U dendritex[tpu] -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+          pip install -U braincell[tpu] -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
 
 
 ----
@@ -51,10 +51,10 @@ We are building the `BDP ecosystem <https://ecosystem-for-brain-dynamics.readthe
    :caption: API Documentation
 
    apis/changelog.md
-   apis/dendritex.rst
-   apis/dendritex.neurons.rst
-   apis/dendritex.ions.rst
-   apis/dendritex.channels.rst
+   apis/braincell.rst
+   apis/braincell.neurons.rst
+   apis/braincell.ions.rst
+   apis/braincell.channels.rst
    apis/integration.rst
 
 

@@ -397,7 +397,7 @@ def _rk_update(
     st.value = jax.tree.map(_step, y0, *ks, is_leaf=u.math.is_quantity)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def _general_rk_step(
     tableau: ButcherTableau,
     target: DiffEqModule,
@@ -526,7 +526,7 @@ ralston4_tableau = ButcherTableau(
 )
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def euler_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The Euler step for the differential equations.
@@ -534,7 +534,7 @@ def euler_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(euler_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def midpoint_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The midpoint step for the differential equations.
@@ -542,7 +542,7 @@ def midpoint_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(midpoint_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def rk2_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The second-order Runge-Kutta step for the differential equations.
@@ -550,7 +550,7 @@ def rk2_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(rk2_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def heun2_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The Heun's second-order Runge-Kutta step for the differential equations.
@@ -558,7 +558,7 @@ def heun2_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(heun2_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def ralston2_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The Ralston's second-order Runge-Kutta step for the differential equations.
@@ -566,7 +566,7 @@ def ralston2_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(ralston2_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def rk3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The third-order Runge-Kutta step for the differential equations.
@@ -574,7 +574,7 @@ def rk3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(rk3_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def heun3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The Heun's third-order Runge-Kutta step for the differential equations.
@@ -582,7 +582,7 @@ def heun3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(heun3_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def ssprk3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The Strong Stability Preserving Runge-Kutta 3rd order step for the differential equations.
@@ -590,7 +590,7 @@ def ssprk3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(ssprk3_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def ralston3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The Ralston's third-order Runge-Kutta step for the differential equations.
@@ -598,7 +598,7 @@ def ralston3_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(ralston3_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def rk4_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The fourth-order Runge-Kutta step for the differential equations.
@@ -606,7 +606,7 @@ def rk4_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     _general_rk_step(rk4_tableau, target, t, *args)
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def ralston4_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The Ralston's fourth-order Runge-Kutta step for the differential equations.
@@ -703,7 +703,7 @@ def _transform_diffeq_module_into_dimensionless_fn(target: DiffEqModule):
     return vector_field, diffeq_states, other_states
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def exp_euler_step(target: DiffEqModule, t: u.Quantity[u.second], *args):
     """
     The explicit Euler step for the differential equations.

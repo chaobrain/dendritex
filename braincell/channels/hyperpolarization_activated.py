@@ -11,8 +11,8 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as bu
 
-from dendritex._base import Channel, HHTypedNeuron
-from dendritex._integrators import DiffEqState
+from braincell._base import Channel, HHTypedNeuron
+from braincell._integrators import DiffEqState
 
 __all__ = [
     'Ih_HM1992',
@@ -55,7 +55,7 @@ class Ih_HM1992(Channel):
            of neurophysiology 68, no. 4 (1992): 1373-1383.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = HHTypedNeuron
 
@@ -257,7 +257,7 @@ class Ih1_Ma2020(Channel):
     From Golgi_hcn1 to HCN1
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = HHTypedNeuron
 
@@ -346,7 +346,7 @@ class Ih2_Ma2020(Channel):
     Data from: Santoro et al. J Neurosci. 2000
     Last revised: April 2006
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = HHTypedNeuron
 

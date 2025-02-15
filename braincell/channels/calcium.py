@@ -12,9 +12,9 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import Channel, IonInfo
-from dendritex._integrators import DiffEqState
-from dendritex.ions import Calcium
+from braincell._base import Channel, IonInfo
+from braincell._integrators import DiffEqState
+from braincell.ions import Calcium
 
 __all__ = [
     'CalciumChannel',
@@ -36,7 +36,7 @@ __all__ = [
 class CalciumChannel(Channel):
     """Base class for Calcium ion channels."""
 
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -95,7 +95,7 @@ class ICaN_IS2008(CalciumChannel):
            increase in the excitability of olfactory bulb interneurons.
            J Neurophysiol 99: 187–199.
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -331,7 +331,7 @@ class ICaT_HM1992(_ICa_p2q_ss):
     --------
     ICa_p2q_form
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -432,7 +432,7 @@ class ICaT_HP1992(_ICa_p2q_ss):
     --------
     ICa_p2q_form
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -530,7 +530,7 @@ class ICaHT_HM1992(_ICa_p2q_ss):
     --------
     ICa_p2q_form
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -627,7 +627,7 @@ class ICaHT_Re1993(_ICa_p2q_markov):
            Neuroscience 13.11 (1993): 4609-4621.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -719,7 +719,7 @@ class ICaL_IS2008(_ICa_p2q_ss):
     --------
     ICa_p2q_form
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -770,7 +770,7 @@ class ICav12_Ma2020(CalciumChannel):
     : also added Calcium dependent inactivation
     """
 
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -843,7 +843,7 @@ class ICav13_Ma2020(CalciumChannel):
     : model from Evans et al 2013, transferred from GENESIS to NEURON by Beining et al (2016), "A novel comprehensive and consistent electrophysiologcal model of dentate granule cells"
     : also added Calcium dependent inactivation
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -923,7 +923,7 @@ class ICav23_Ma2020(CalciumChannel):
     : From car to Cav2_3
     """
 
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 
@@ -993,7 +993,7 @@ class ICav31_Ma2020(CalciumChannel):
     Contact: Haroon Anwar (anwar@oist.jp)
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
     root_type = Calcium
 
     def __init__(
@@ -1083,7 +1083,7 @@ class ICaGrc_Ma2020(CalciumChannel):
       Last revised: 8.5.2000
     """
 
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Calcium
 

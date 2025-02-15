@@ -22,8 +22,8 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import Ion, Channel, HHTypedNeuron
-from dendritex._integrators import DiffEqState
+from braincell._base import Ion, Channel, HHTypedNeuron
+from braincell._integrators import DiffEqState
 
 __all__ = [
     'Calcium',
@@ -35,7 +35,7 @@ __all__ = [
 
 class Calcium(Ion):
     """Base class for modeling Calcium ion."""
-    __module__ = 'dendritex.ions'
+    __module__ = 'braincell.ions'
 
     root_type = HHTypedNeuron
 
@@ -46,7 +46,7 @@ class CalciumFixed(Calcium):
     This calcium model has no dynamics. It holds fixed reversal
     potential :math:`E` and concentration :math:`C`.
     """
-    __module__ = 'dendritex.ions'
+    __module__ = 'braincell.ions'
 
     def __init__(
         self,
@@ -242,7 +242,7 @@ class CalciumDetailed(_CalciumDynamics):
            no. 5 (1998): 2730-2748.
 
     """
-    __module__ = 'dendritex.ions'
+    __module__ = 'braincell.ions'
 
     def __init__(
         self,
@@ -279,7 +279,7 @@ class CalciumFirstOrder(_CalciumDynamics):
        Ca' = -\alpha I_{Ca} + -\beta Ca
 
     """
-    __module__ = 'dendritex.ions'
+    __module__ = 'braincell.ions'
 
     def __init__(
         self,

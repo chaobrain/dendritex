@@ -21,7 +21,7 @@ import diffrax as dfx
 import matplotlib.pyplot as plt
 import numpy as np
 
-import dendritex as dx
+import braincell
 from simple_dendrite_model import ThreeCompartmentHH
 
 
@@ -44,7 +44,7 @@ def solve_explicit_solver(
     def save(t, *args):
         return hh.V.value
 
-    ts, ys, steps = dx.diffrax_solve(
+    ts, ys, steps = braincell.diffrax_solve(
         step, method, 0. * u.ms, t1, dt,
         savefn=save, saveat=saveat, args=args,
         adjoint=dfx.RecursiveCheckpointAdjoint(1000)
@@ -69,7 +69,7 @@ def adjoint_solve_explicit_solver(
         currents = f_current(t, *args)
         hh.compute_derivative(currents)
 
-    ts, ys, steps = dx.diffrax_solve_adjoint(
+    ts, ys, steps = braincell.diffrax_solve_adjoint(
         step, method, 0. * u.ms, t1, dt, saveat=saveat, args=args, max_steps=max_steps
     )
     return ts, ys[0], steps

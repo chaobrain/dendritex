@@ -12,9 +12,9 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import Channel, IonInfo
-from dendritex._integrators import DiffEqState
-from dendritex.ions import Sodium
+from braincell._base import Channel, IonInfo
+from braincell._integrators import DiffEqState
+from braincell.ions import Sodium
 
 __all__ = [
     'SodiumChannel',
@@ -27,7 +27,7 @@ __all__ = [
 
 class SodiumChannel(Channel):
     """Base class for sodium channel dynamics."""
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     root_type = Sodium
 
@@ -165,7 +165,7 @@ class INa_Ba2002(INa_p3q_markov):
     --------
     INa_TM1991
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -246,7 +246,7 @@ class INa_TM1991(INa_p3q_markov):
     --------
     INa_Ba2002
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -327,7 +327,7 @@ class INa_HH1952(INa_p3q_markov):
     --------
     IK_HH1952
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,
@@ -363,7 +363,7 @@ class INa_HH1952(INa_p3q_markov):
 
 
 class INa_Rsg(SodiumChannel):
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channels'
 
     def __init__(
         self,

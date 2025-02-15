@@ -36,7 +36,7 @@ class DiffEqState(bst.ShortTermState):
 
     """
 
-    __module__ = 'dendritex'
+    __module__ = 'braincell'
 
     # derivative of this state
     derivative: bst.typing.PyTree
@@ -82,7 +82,7 @@ class DiffEqModule(bst.mixin.Mixin):
     """
     The module for defining the differential equations.
     """
-    __module__ = 'dendritex'
+    __module__ = 'braincell'
 
     def pre_integral(self, *args, **kwargs):
         pass

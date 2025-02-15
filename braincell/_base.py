@@ -53,7 +53,7 @@ class HHTypedNeuron(bst.nn.Dynamics, Container, DiffEqModule):
     """
     The base class for the Hodgkin-Huxley typed neuronal membrane dynamics.
     """
-    __module__ = 'dendritex'
+    __module__ = 'braincell'
     _container_name = 'ion_channels'
 
     def __init__(
@@ -142,7 +142,7 @@ class IonChannel(bst.graph.Node, TreeNode, DiffEqModule):
     - :py:meth:`reset_state`: Reset the state variables.
 
     """
-    __module__ = 'dendritex'
+    __module__ = 'braincell'
 
     def __init__(
         self,
@@ -212,7 +212,7 @@ class Ion(IonChannel, Container):
       size: The size of the simulation target.
       name: The name of the object.
     """
-    __module__ = 'dendritex'
+    __module__ = 'braincell'
     _container_name = 'channels'
 
     # The type of the master object.
@@ -315,7 +315,7 @@ class MixIons(IonChannel, Container):
     Args:
       ions: Instances of ions. This option defines the master types of all children objects.
     """
-    __module__ = 'dendritex'
+    __module__ = 'braincell'
 
     root_type = HHTypedNeuron
     _container_name = 'channels'
@@ -439,7 +439,7 @@ class MixIons(IonChannel, Container):
             )
 
 
-@set_module_as('dendritex')
+@set_module_as('braincell')
 def mix_ions(*ions) -> MixIons:
     """Create mixed ions.
 
@@ -459,4 +459,4 @@ class Channel(IonChannel):
     """
     The base class for modeling channel dynamics.
     """
-    __module__ = 'dendritex'
+    __module__ = 'braincell'

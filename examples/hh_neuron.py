@@ -17,24 +17,24 @@ import brainunit as u
 import matplotlib.pyplot as plt
 
 import brainstate as bst
-import dendritex as dx
+import braincell
 
 
-class HH(dx.neurons.SingleCompartment):
+class HH(braincell.neurons.SingleCompartment):
     def __init__(self, size):
         super().__init__(size)
 
-        self.na = dx.ions.SodiumFixed(size, E=50. * u.mV)
-        self.na.add_elem(INa=dx.channels.INa_HH1952(size))
+        self.na = braincell.ions.SodiumFixed(size, E=50. * u.mV)
+        self.na.add_elem(INa=braincell.channels.INa_HH1952(size))
 
-        self.k = dx.ions.PotassiumFixed(size, E=-77. * u.mV)
-        self.k.add_elem(IK=dx.channels.IK_HH1952(size))
+        self.k = braincell.ions.PotassiumFixed(size, E=-77. * u.mV)
+        self.k.add_elem(IK=braincell.channels.IK_HH1952(size))
 
-        self.IL = dx.channels.IL(size, E=-54.387 * u.mV, g_max=0.03 * (u.mS / u.cm ** 2))
+        self.IL = braincell.channels.IL(size, E=-54.387 * u.mV, g_max=0.03 * (u.mS / u.cm ** 2))
 
     def update(self, I_ext=0. * u.nA / u.cm ** 2):
         bst.augment.vmap(
-            lambda: dx.exp_euler_step(self, bst.environ.get('t'), I_ext),
+            lambda: braincell.exp_euler_step(self, bst.environ.get('t'), I_ext),
             in_states=self.states()
         )()
         return self.post_integral(I_ext)
