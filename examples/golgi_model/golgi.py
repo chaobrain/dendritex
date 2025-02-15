@@ -129,7 +129,7 @@ gkmgrc = np.zeros(n_compartments)
 gkmgrc[index_axon[0]] = conductvalues[20]
 
 
-class Golgi(braincell.neurons.MultiCompartment):
+class Golgi(braincell.neuron.MultiCompartment):
     def __init__(self, size, connection, Ra, cm, diam, L, gl, gkv11):
         super().__init__(
             size=size,
@@ -143,9 +143,9 @@ class Golgi(braincell.neurons.MultiCompartment):
             spk_fun=bst.surrogate.ReluGrad(),
         )
 
-        self.IL = braincell.channels.IL(self.size, E=-55. * u.mV, g_max=gl * u.mS / (u.cm ** 2))
-        self.k = braincell.ions.PotassiumFixed(self.size, E=-80. * u.mV)
-        self.k.add_elem(k=braincell.channels.IKv11_Ak2007(self.size, g_max=gkv11 * u.mS / (u.cm ** 2)))
+        self.IL = braincell.channel.IL(self.size, E=-55. * u.mV, g_max=gl * u.mS / (u.cm ** 2))
+        self.k = braincell.ion.PotassiumFixed(self.size, E=-80. * u.mV)
+        self.k.add_elem(k=braincell.channel.IKv11_Ak2007(self.size, g_max=gkv11 * u.mS / (u.cm ** 2)))
 
 
 @bst.compile.jit(static_argnums=6)

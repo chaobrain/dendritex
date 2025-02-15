@@ -20,17 +20,17 @@ import brainstate as bst
 import braincell
 
 
-class HH(braincell.neurons.SingleCompartment):
+class HH(braincell.neuron.SingleCompartment):
     def __init__(self, size):
         super().__init__(size)
 
-        self.na = braincell.ions.SodiumFixed(size, E=50. * u.mV)
-        self.na.add_elem(INa=braincell.channels.INa_HH1952(size))
+        self.na = braincell.ion.SodiumFixed(size, E=50. * u.mV)
+        self.na.add_elem(INa=braincell.channel.INa_HH1952(size))
 
-        self.k = braincell.ions.PotassiumFixed(size, E=-77. * u.mV)
-        self.k.add_elem(IK=braincell.channels.IK_HH1952(size))
+        self.k = braincell.ion.PotassiumFixed(size, E=-77. * u.mV)
+        self.k.add_elem(IK=braincell.channel.IK_HH1952(size))
 
-        self.IL = braincell.channels.IL(size, E=-54.387 * u.mV, g_max=0.03 * (u.mS / u.cm ** 2))
+        self.IL = braincell.channel.IL(size, E=-54.387 * u.mV, g_max=0.03 * (u.mS / u.cm ** 2))
 
     def update(self, I_ext=0. * u.nA / u.cm ** 2):
         bst.augment.vmap(

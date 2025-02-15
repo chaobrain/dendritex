@@ -20,8 +20,8 @@ import braintools as bts
 
 import braincell
 
-cat = braincell.channels.ICaT_HP1992(1)
-caht = braincell.channels.ICaHT_HM1992(1)
+cat = braincell.channel.ICaT_HP1992(1)
+caht = braincell.channel.ICaHT_HM1992(1)
 
 vs = bu.math.arange(-100 * bu.mV, 0 * bu.mV, 0.1 * bu.mV)
 

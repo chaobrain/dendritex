@@ -21,7 +21,7 @@ import braincell
 s = u.siemens / u.cm ** 2
 
 
-class INa(braincell.channels.SodiumChannel):
+class INa(braincell.channel.SodiumChannel):
     def __init__(self, size, g_max):
         super().__init__(size)
 
@@ -49,7 +49,7 @@ class INa(braincell.channels.SodiumChannel):
     h_inf = lambda self, V: self.h_alpha(V) / (self.h_alpha(V) + self.h_beta(V))
 
 
-class IK(braincell.channels.PotassiumChannel):
+class IK(braincell.channel.PotassiumChannel):
     def __init__(self, size, g_max):
         super().__init__(size)
         self.g_max = bst.init.param(g_max, self.varshape)
@@ -68,7 +68,7 @@ class IK(braincell.channels.PotassiumChannel):
     n_inf = lambda self, V: self.n_alpha(V) / (self.n_alpha(V) + self.n_beta(V))
 
 
-class ThreeCompartmentHH(braincell.neurons.MultiCompartment):
+class ThreeCompartmentHH(braincell.neuron.MultiCompartment):
     def __init__(self, n_neuron: int, g_na, g_k):
         super().__init__(
             size=(n_neuron, 3),
@@ -82,12 +82,12 @@ class ThreeCompartmentHH(braincell.neurons.MultiCompartment):
             spk_fun=bst.surrogate.ReluGrad(),
         )
 
-        self.IL = braincell.channels.IL(self.size, E=(-54.3, -65., -65.) * u.mV, g_max=[0.0003, 0.001, 0.001] * s)
+        self.IL = braincell.channel.IL(self.size, E=(-54.3, -65., -65.) * u.mV, g_max=[0.0003, 0.001, 0.001] * s)
 
-        self.na = braincell.ions.SodiumFixed(self.size, E=50. * u.mV)
+        self.na = braincell.ion.SodiumFixed(self.size, E=50. * u.mV)
         self.na.add_elem(INa=INa(self.size, g_max=(g_na, 0., 0.) * s))
 
-        self.k = braincell.ions.PotassiumFixed(self.size, E=-77. * u.mV)
+        self.k = braincell.ion.PotassiumFixed(self.size, E=-77. * u.mV)
         self.k.add_elem(IK=IK(self.size, g_max=(g_k, 0., 0.) * s))
 
     def step_run(self, t, inp):

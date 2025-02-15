@@ -110,7 +110,7 @@ class IK(braincell.Channel):
         return (self.gK * n2 * n2) * (self.EK - V)
 
 
-class HH(braincell.neurons.SingleCompartment):
+class HH(braincell.neuron.SingleCompartment):
     def __init__(
         self,
         size,
@@ -123,7 +123,7 @@ class HH(braincell.neurons.SingleCompartment):
         super().__init__(size, V_initializer=v_initializer, C=C)
         self.ina = INa(size, gNa=gNa)
         self.ik = IK(size, gK=gK)
-        self.il = braincell.channels.IL(size, g_max=gL, E=-65. * u.mV)
+        self.il = braincell.channel.IL(size, g_max=gL, E=-65. * u.mV)
 
 
 def visualize_target(voltages):
