@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module implements leakage channels.
+This module implements leakage channel.
 
 """
 
@@ -24,7 +24,7 @@ class LeakageChannel(Channel):
     """
     Base class for leakage channel dynamics.
     """
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
 
     root_type = HHTypedNeuron
 
@@ -57,7 +57,7 @@ class IL(LeakageChannel):
     E : float
       The reversal potential.
     """
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
     root_type = HHTypedNeuron
 
     def __init__(

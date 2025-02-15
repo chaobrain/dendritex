@@ -130,7 +130,7 @@ class IonChannel(bst.graph.Node, TreeNode, DiffEqModule):
     The base class for ion channel modeling.
 
     :py:class:`IonChannel` can be used to model the dynamics of an ion (instance of :py:class:`Ion`), or
-    a mixture of ions (instance of :py:class:`MixIons`), or a channel (instance of :py:class:`Channel`).
+    a mixture of ion (instance of :py:class:`MixIons`), or a channel (instance of :py:class:`Channel`).
 
     Particularly, an implementation of a :py:class:`IonChannel` should implement the following methods:
 
@@ -213,7 +213,7 @@ class Ion(IonChannel, Container):
       name: The name of the object.
     """
     __module__ = 'braincell'
-    _container_name = 'channels'
+    _container_name = 'channel'
 
     # The type of the master object.
     root_type = HHTypedNeuron
@@ -313,27 +313,27 @@ class MixIons(IonChannel, Container):
     Mixing Ions.
 
     Args:
-      ions: Instances of ions. This option defines the master types of all children objects.
+      ions: Instances of ion. This option defines the master types of all children objects.
     """
     __module__ = 'braincell'
 
     root_type = HHTypedNeuron
-    _container_name = 'channels'
+    _container_name = 'channel'
 
     def __init__(self, *ions, name: Optional[str] = None, **channels):
-        # TODO: check "ions" should be independent from each other
-        assert len(ions) >= 2, f'{self.__class__.__name__} requires at least two ions. '
+        # TODO: check "ion" should be independent from each other
+        assert len(ions) >= 2, f'{self.__class__.__name__} requires at least two ion. '
         assert all([isinstance(cls, Ion) for cls in ions]), f'Must be a sequence of Ion. But got {ions}.'
         size = ions[0].size
         for ion in ions:
-            assert ion.size == size, f'The size of all ions should be the same. But we got {ions}.'
+            assert ion.size == size, f'The size of all ion should be the same. But we got {ions}.'
         super().__init__(size=size, name=name)
 
         # Store the ion instances
         self.ions: Sequence['Ion'] = tuple(ions)
         self._ion_types = tuple([type(ion) for ion in self.ions])
 
-        # Store the ion channel channels
+        # Store the ion channel channel
         self.channels: Dict[str, Channel] = dict()
         self.channels.update(self._format_elements(Channel, **channels))
 
@@ -441,7 +441,7 @@ class MixIons(IonChannel, Container):
 
 @set_module_as('braincell')
 def mix_ions(*ions) -> MixIons:
-    """Create mixed ions.
+    """Create mixed ion.
 
     Args:
       ions: Ion instances.

@@ -2,7 +2,7 @@
 
 
 """
-This module implements calcium-dependent potassium channels.
+This module implements calcium-dependent potassium channel.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ import jax
 
 from braincell._base import IonInfo, Channel
 from braincell._integrators import DiffEqState
-from braincell.ions import Calcium, Potassium
+from braincell.ion import Calcium, Potassium
 
 __all__ = [
     'KCaChannel',
@@ -28,7 +28,7 @@ __all__ = [
 
 
 class KCaChannel(Channel):
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 
@@ -96,7 +96,7 @@ class IAHP_De1994(KCaChannel):
            thalamic reticular nucleus." Journal of neurophysiology 72.2 (1994): 803-818.
 
     """
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 
@@ -148,7 +148,7 @@ class IKca3_1_Ma2020(KCaChannel):
     : Adapted from /usr/local/neuron/demo/release/nachan.mod - squid
     :   by Andrew Davison, The Babraham Institute  [Brain Res Bulletin, 2000]
     '''
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 
@@ -221,7 +221,7 @@ class IKca2_2_Ma2020(KCaChannel):
                 electroresponsiveness in cerebellar golgi cells
                 Frontiers in Cellular Neuroscience 2:2
     '''
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 
@@ -319,7 +319,7 @@ class IKca1_1_Ma2020(KCaChannel):
 
     Parameters from Cox et al. (1987) J Gen Physiol 110:257-81 (patch 1).
 
-    Current Model Reference: Anwar H, Hong S, De Schutter E (2010) Controlling Ca2+-activated K+ channels with models of Ca2+ buffering in Purkinje cell. Cerebellum*
+    Current Model Reference: Anwar H, Hong S, De Schutter E (2010) Controlling Ca2+-activated K+ channel with models of Ca2+ buffering in Purkinje cell. Cerebellum*
 
     *Article available as Open Access
 
@@ -329,7 +329,7 @@ class IKca1_1_Ma2020(KCaChannel):
     Written by Sungho Hong, Okinawa Institute of Science and Technology, March 2009.
     Contact: Sungho Hong (shhong@oist.jp)
     '''
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
 
     root_type = bst.mixin.JointTypes[Potassium, Calcium]
 

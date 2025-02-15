@@ -35,7 +35,7 @@ __all__ = [
 
 class Calcium(Ion):
     """Base class for modeling Calcium ion."""
-    __module__ = 'braincell.ions'
+    __module__ = 'braincell.ion'
 
     root_type = HHTypedNeuron
 
@@ -46,7 +46,7 @@ class CalciumFixed(Calcium):
     This calcium model has no dynamics. It holds fixed reversal
     potential :math:`E` and concentration :math:`C`.
     """
-    __module__ = 'braincell.ions'
+    __module__ = 'braincell.ion'
 
     def __init__(
         self,
@@ -142,7 +142,7 @@ class CalciumDetailed(_CalciumDynamics):
 
     *(i) Influx of* :math:`Ca^{2+}` *due to Calcium currents*
 
-    :math:`Ca^{2+}` ions enter through :math:`Ca^{2+}` channels and diffuse into the
+    :math:`Ca^{2+}` ion enter through :math:`Ca^{2+}` channel and diffuse into the
     interior of the cell. Only the :math:`Ca^{2+}` concentration in a thin shell beneath
     the membrane was modeled. The influx of :math:`Ca^{2+}` into such a thin shell followed:
 
@@ -169,7 +169,7 @@ class CalciumDetailed(_CalciumDynamics):
     where P represents the :math:`Ca^{2+}` pump, CaP is an intermediate state,
     :math:`Ca _{ o }^{2+}` is the extracellular :math:`Ca^{2+}` concentration,
     and :math:`c_{1}, c_{2}` and :math:`c_{3}` are rate constants. :math:`Ca^{2+}`
-    ions have a high affinity for the pump :math:`P`, whereas extrusion of
+    ion have a high affinity for the pump :math:`P`, whereas extrusion of
     :math:`Ca^{2+}` follows a slower process (Blaustein, 1988 ). Therefore,
     :math:`c_{3}` is low compared to :math:`c_{1}` and :math:`c_{2}` and the
     Michaelis-Menten approximation can be used for describing the kinetics of the pump.
@@ -235,14 +235,14 @@ class CalciumDetailed(_CalciumDynamics):
 
     .. [1] Destexhe, Alain, Agnessa Babloyantz, and Terrence J. Sejnowski.
            "Ionic mechanisms for intrinsic slow oscillations in thalamic
-           relay neurons." Biophysical journal 65, no. 4 (1993): 1538-1552.
+           relay neuron." Biophysical journal 65, no. 4 (1993): 1538-1552.
     .. [2] Bazhenov, Maxim, Igor Timofeev, Mircea Steriade, and Terrence J.
            Sejnowski. "Cellular and network models for intrathalamic augmenting
            responses during 10-Hz stimulation." Journal of neurophysiology 79,
            no. 5 (1998): 2730-2748.
 
     """
-    __module__ = 'braincell.ions'
+    __module__ = 'braincell.ion'
 
     def __init__(
         self,
@@ -279,7 +279,7 @@ class CalciumFirstOrder(_CalciumDynamics):
        Ca' = -\alpha I_{Ca} + -\beta Ca
 
     """
-    __module__ = 'braincell.ions'
+    __module__ = 'braincell.ion'
 
     def __init__(
         self,

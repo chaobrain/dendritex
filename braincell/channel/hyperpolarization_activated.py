@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module implements hyperpolarization-activated cation channels.
+This module implements hyperpolarization-activated cation channel.
 """
 
 from __future__ import annotations
@@ -51,11 +51,11 @@ class Ih_HM1992(Channel):
     References
     ----------
     .. [1] Huguenard, John R., and David A. McCormick. "Simulation of the currents
-           involved in rhythmic oscillations in thalamic relay neurons." Journal
+           involved in rhythmic oscillations in thalamic relay neuron." Journal
            of neurophysiology 68, no. 4 (1992): 1373-1383.
 
     """
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
 
     root_type = HHTypedNeuron
 
@@ -115,16 +115,16 @@ class Ih_HM1992(Channel):
 #      O+P_{1} \underset{k_{4}}{\rightleftarrows} O_{\mathrm{L}}
 #      \end{gathered}
 #
-#   where the first reaction represents the voltage-dependent transitions of :math:`I_h` channels
+#   where the first reaction represents the voltage-dependent transitions of :math:`I_h` channel
 #   between closed (C) and open (O) forms, with :math:`\alpha` and :math:`\beta` as transition rates.
-#   The second reaction represents the biding of intracellular :math:`\mathrm{Ca^{2+}}` ions to a
+#   The second reaction represents the biding of intracellular :math:`\mathrm{Ca^{2+}}` ion to a
 #   regulating factor (:math:`P_0` for unbound and :math:`P_1` for bound) with four binding sites for
 #   calcium and rates of :math:`k_1 = 2.5e^7\, mM^{-4} \, ms^{-1}` and :math:`k_2=4e-4 \, ms^{-1}`
 #   (half-activation of 0.002 mM :math:`Ca^{2+}`). The calcium-bound form :math:`P_1` associates
 #   with the open form of the channel, leading to a locked open form :math:`O_L`, with rates of
 #   :math:`k_3=0.1 \, ms^{-1}` and :math:`k_4 = 0.001 \, ms^{-1}`.
 #
-#   The current is the proportional to the relative concentration of open channels
+#   The current is the proportional to the relative concentration of open channel
 #
 #   .. math::
 #
@@ -133,7 +133,7 @@ class Ih_HM1992(Channel):
 #   with a maximal conductance of :math:`\bar{g}_{\mathrm{h}}=0.02 \mathrm{mS} / \mathrm{cm}^{2}`
 #   and a reversal potential of :math:`E_{\mathrm{h}}=-40 \mathrm{mV}`. Because of the factor
 #   :math:`g_{\text {inc }}=2`, the conductance of the calcium-bound open state of
-#   :math:`I_{\mathrm{h}}` channels is twice that of the unbound open state. This produces an
+#   :math:`I_{\mathrm{h}}` channel is twice that of the unbound open state. This produces an
 #   augmentation of conductance after the binding of :math:`\mathrm{Ca}^{2+}`, as observed in
 #   sino-atrial cells (Hagiwara and Irisawa 1989).
 #
@@ -257,7 +257,7 @@ class Ih1_Ma2020(Channel):
     From Golgi_hcn1 to HCN1
 
     """
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
 
     root_type = HHTypedNeuron
 
@@ -346,7 +346,7 @@ class Ih2_Ma2020(Channel):
     Data from: Santoro et al. J Neurosci. 2000
     Last revised: April 2006
     """
-    __module__ = 'braincell.channels'
+    __module__ = 'braincell.channel'
 
     root_type = HHTypedNeuron
 

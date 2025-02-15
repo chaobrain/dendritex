@@ -66,7 +66,7 @@ class SingleCompartment(HHTypedNeuron):
     name : optional, str
       The neuron group name.
     """
-    __module__ = 'braincell.neurons'
+    __module__ = 'braincell.neuron'
 
     def __init__(
         self,
@@ -109,15 +109,15 @@ class SingleCompartment(HHTypedNeuron):
         # 1. inputs + 2. synapses
         I_ext = self.sum_current_inputs(I_ext, self.V.value)
 
-        # 3. channels
+        # 3. channel
         for key, ch in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             I_ext = I_ext + ch.current(self.V.value)
 
         # 4. derivatives
         self.V.derivative = I_ext / self.C
 
-        # [ integrate dynamics of ion and ion channels ]
-        # check whether the children channels have the correct parents.
+        # [ integrate dynamics of ion and ion channel ]
+        # check whether the children channel have the correct parents.
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.compute_derivative(self.V.value)
 

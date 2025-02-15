@@ -280,9 +280,9 @@ def main():
   ]
 
   _write_submodules(
-    module_name='braincell.neurons',
-    filename='apis/braincell.neurons.rst',
-    header='``braincell.neurons`` module',
+    module_name='braincell.neuron',
+    filename='apis/braincell.neuron.rst',
+    header='``braincell.neuron`` module',
     submodule_names=[k[0] for k in module_and_name],
     section_names=[k[1] for k in module_and_name]
   )
@@ -294,9 +294,9 @@ def main():
   ]
 
   _write_submodules(
-    module_name='braincell.ions',
-    filename='apis/braincell.ions.rst',
-    header='``braincell.ions`` module',
+    module_name='braincell.ion',
+    filename='apis/braincell.ion.rst',
+    header='``braincell.ion`` module',
     submodule_names=[k[0] for k in module_and_name],
     section_names=[k[1] for k in module_and_name]
   )
@@ -311,9 +311,9 @@ def main():
   ]
 
   _write_submodules(
-    module_name='braincell.channels',
-    filename='apis/braincell.channels.rst',
-    header='``braincell.channels`` module',
+    module_name='braincell.channel',
+    filename='apis/braincell.channel.rst',
+    header='``braincell.channel`` module',
     submodule_names=[k[0] for k in module_and_name],
     section_names=[k[1] for k in module_and_name]
   )
