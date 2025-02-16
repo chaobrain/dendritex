@@ -19,9 +19,9 @@ import brainunit as u
 from typing import Union, Optional, Callable
 
 import brainstate as bst
-from dendritex._base import HHTypedNeuron, IonChannel
-from dendritex._integrators import DiffEqState
-from dendritex._integrators import get_integrator
+from braincell._base import HHTypedNeuron, IonChannel
+from braincell._integrators import DiffEqState
+from braincell._integrators import get_integrator
 
 __all__ = [
     'SingleCompartment',
@@ -66,7 +66,7 @@ class SingleCompartment(HHTypedNeuron):
     name : optional, str
       The neuron group name.
     """
-    __module__ = 'dendritex.neurons'
+    __module__ = 'braincell.neuron'
 
     def __init__(
         self,
@@ -109,15 +109,15 @@ class SingleCompartment(HHTypedNeuron):
         # 1. inputs + 2. synapses
         I_ext = self.sum_current_inputs(I_ext, self.V.value)
 
-        # 3. channels
+        # 3. channel
         for key, ch in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             I_ext = I_ext + ch.current(self.V.value)
 
         # 4. derivatives
         self.V.derivative = I_ext / self.C
 
-        # [ integrate dynamics of ion and ion channels ]
-        # check whether the children channels have the correct parents.
+        # [ integrate dynamics of ion and ion channel ]
+        # check whether the children channel have the correct parents.
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.compute_derivative(self.V.value)
 
@@ -126,7 +126,7 @@ class SingleCompartment(HHTypedNeuron):
         self.V.value = self.sum_delta_inputs(init=self.V.value)
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.post_integral(self.V.value)
-        return self.get_spike()
+        # return self.get_spike()
 
     def update(self, I_ext=0. * u.nA / u.cm ** 2):
         # integration

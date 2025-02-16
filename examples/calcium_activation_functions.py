@@ -18,10 +18,10 @@ import brainunit as bu
 import matplotlib.pyplot as plt
 import braintools as bts
 
-import dendritex as dx
+import braincell
 
-cat = dx.channels.ICaT_HP1992(1)
-caht = dx.channels.ICaHT_HM1992(1)
+cat = braincell.channel.ICaT_HP1992(1)
+caht = braincell.channel.ICaHT_HM1992(1)
 
 vs = bu.math.arange(-100 * bu.mV, 0 * bu.mV, 0.1 * bu.mV)
 

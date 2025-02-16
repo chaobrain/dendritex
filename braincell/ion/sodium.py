@@ -20,7 +20,7 @@ from typing import Union, Callable, Optional
 import brainstate as bst
 import brainunit as u
 
-from dendritex._base import Ion
+from braincell._base import Ion
 
 __all__ = [
     'Sodium',
@@ -30,7 +30,7 @@ __all__ = [
 
 class Sodium(Ion):
     """Base class for modeling Sodium ion."""
-    __module__ = 'dendritex.ions'
+    __module__ = 'braincell.ion'
 
 
 class SodiumFixed(Sodium):
@@ -40,7 +40,7 @@ class SodiumFixed(Sodium):
     This calcium model has no dynamics. It holds fixed reversal
     potential :math:`E` and concentration :math:`C`.
     """
-    __module__ = 'dendritex.ions'
+    __module__ = 'braincell.ion'
 
     def __init__(
         self,

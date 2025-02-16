@@ -22,7 +22,7 @@ import jax
 import matplotlib.pyplot as plt
 import numpy as np
 
-import dendritex as dx
+import braincell
 
 bst.environ.set(precision=64)
 
@@ -129,7 +129,7 @@ gkmgrc = np.zeros(n_compartments)
 gkmgrc[index_axon[0]] = conductvalues[20]
 
 
-class Golgi(dx.neurons.MultiCompartment):
+class Golgi(braincell.neuron.MultiCompartment):
     def __init__(self, size, connection, Ra, cm, diam, L, gl, gkv11):
         super().__init__(
             size=size,
@@ -143,9 +143,9 @@ class Golgi(dx.neurons.MultiCompartment):
             spk_fun=bst.surrogate.ReluGrad(),
         )
 
-        self.IL = dx.channels.IL(self.size, E=-55. * u.mV, g_max=gl * u.mS / (u.cm ** 2))
-        self.k = dx.ions.PotassiumFixed(self.size, E=-80. * u.mV)
-        self.k.add_elem(k=dx.channels.IKv11_Ak2007(self.size, g_max=gkv11 * u.mS / (u.cm ** 2)))
+        self.IL = braincell.channel.IL(self.size, E=-55. * u.mV, g_max=gl * u.mS / (u.cm ** 2))
+        self.k = braincell.ion.PotassiumFixed(self.size, E=-80. * u.mV)
+        self.k.add_elem(k=braincell.channel.IKv11_Ak2007(self.size, g_max=gkv11 * u.mS / (u.cm ** 2)))
 
 
 @bst.compile.jit(static_argnums=6)
@@ -166,7 +166,7 @@ def simulate(Ra, cm, diam, L, gl, gkv11, method='ieuler'):
     with jax.ensure_compile_time_eval():
         dt = 0.01 * u.ms
         ts = u.math.arange(0. * u.ms, 200. * u.ms, dt)
-    ts, ys, steps = dx.diffrax_solve(
+    ts, ys, steps = braincell.diffrax_solve(
         step, method, 0. * u.ms, 200. * u.ms, dt, ts,
         savefn=save, atol=1e-5,  # max_steps=200000,
     )
@@ -185,7 +185,7 @@ def simulate2(Ra, cm, diam, L, gl, gkv11):
         inp_a[..., 30] = 0.02 * u.nA
         inp_b = np.full((n_neuron, n_compartments), 0.) * u.nA
         inp = u.math.where(t < 100 * u.ms, inp_a, inp_b)
-        dx.rk4_step(cell, t, inp)
+        braincell.rk4_step(cell, t, inp)
         return cell.V.value
 
     with jax.ensure_compile_time_eval():

@@ -16,26 +16,26 @@
 import brainstate as bst
 import brainunit as u
 
-import dendritex as dx
+import braincell
 
 s = u.siemens / u.cm ** 2
 
 
-class INa(dx.channels.SodiumChannel):
+class INa(braincell.channel.SodiumChannel):
     def __init__(self, size, g_max):
         super().__init__(size)
 
         self.g_max = bst.init.param(g_max, self.varshape)
 
-    def init_state(self, V, Na: dx.IonInfo, batch_size: int = None):
-        self.m = dx.DiffEqState(self.m_inf(V))
-        self.h = dx.DiffEqState(self.h_inf(V))
+    def init_state(self, V, Na: braincell.IonInfo, batch_size: int = None):
+        self.m = braincell.DiffEqState(self.m_inf(V))
+        self.h = braincell.DiffEqState(self.h_inf(V))
 
-    def compute_derivative(self, V, Na: dx.IonInfo):
+    def compute_derivative(self, V, Na: braincell.IonInfo):
         self.m.derivative = (self.m_alpha(V) * (1 - self.m.value) - self.m_beta(V) * self.m.value) / u.ms
         self.h.derivative = (self.h_alpha(V) * (1 - self.h.value) - self.h_beta(V) * self.h.value) / u.ms
 
-    def current(self, V, Na: dx.IonInfo):
+    def current(self, V, Na: braincell.IonInfo):
         return self.g_max * self.m.value ** 3 * self.h.value * (Na.E - V)
 
     # m channel
@@ -49,18 +49,18 @@ class INa(dx.channels.SodiumChannel):
     h_inf = lambda self, V: self.h_alpha(V) / (self.h_alpha(V) + self.h_beta(V))
 
 
-class IK(dx.channels.PotassiumChannel):
+class IK(braincell.channel.PotassiumChannel):
     def __init__(self, size, g_max):
         super().__init__(size)
         self.g_max = bst.init.param(g_max, self.varshape)
 
-    def init_state(self, V, K: dx.IonInfo, batch_size: int = None):
-        self.n = dx.DiffEqState(self.n_inf(V))
+    def init_state(self, V, K: braincell.IonInfo, batch_size: int = None):
+        self.n = braincell.DiffEqState(self.n_inf(V))
 
-    def compute_derivative(self, V, K: dx.IonInfo):
+    def compute_derivative(self, V, K: braincell.IonInfo):
         self.n.derivative = (self.n_alpha(V) * (1 - self.n.value) - self.n_beta(V) * self.n.value) / u.ms
 
-    def current(self, V, K: dx.IonInfo):
+    def current(self, V, K: braincell.IonInfo):
         return self.g_max * self.n.value ** 4 * (K.E - V)
 
     n_alpha = lambda self, V: 0.1 / u.math.exprel(-(V / u.mV + 55.) / 10.)
@@ -68,7 +68,7 @@ class IK(dx.channels.PotassiumChannel):
     n_inf = lambda self, V: self.n_alpha(V) / (self.n_alpha(V) + self.n_beta(V))
 
 
-class ThreeCompartmentHH(dx.neurons.MultiCompartment):
+class ThreeCompartmentHH(braincell.neuron.MultiCompartment):
     def __init__(self, n_neuron: int, g_na, g_k):
         super().__init__(
             size=(n_neuron, 3),
@@ -82,14 +82,14 @@ class ThreeCompartmentHH(dx.neurons.MultiCompartment):
             spk_fun=bst.surrogate.ReluGrad(),
         )
 
-        self.IL = dx.channels.IL(self.size, E=(-54.3, -65., -65.) * u.mV, g_max=[0.0003, 0.001, 0.001] * s)
+        self.IL = braincell.channel.IL(self.size, E=(-54.3, -65., -65.) * u.mV, g_max=[0.0003, 0.001, 0.001] * s)
 
-        self.na = dx.ions.SodiumFixed(self.size, E=50. * u.mV)
+        self.na = braincell.ion.SodiumFixed(self.size, E=50. * u.mV)
         self.na.add_elem(INa=INa(self.size, g_max=(g_na, 0., 0.) * s))
 
-        self.k = dx.ions.PotassiumFixed(self.size, E=-77. * u.mV)
+        self.k = braincell.ion.PotassiumFixed(self.size, E=-77. * u.mV)
         self.k.add_elem(IK=IK(self.size, g_max=(g_k, 0., 0.) * s))
 
     def step_run(self, t, inp):
-        dx.rk4_step(self, t, inp)
+        braincell.rk4_step(self, t, inp)
         return self.V.value, self.spike.value

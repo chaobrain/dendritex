@@ -26,7 +26,7 @@ from setuptools import setup
 
 # version
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'dendritex/', '__init__.py'), 'r') as f:
+with open(os.path.join(here, 'braincell/', '__init__.py'), 'r') as f:
     init_py = f.read()
 version = re.search('__version__ = "(.*)"', init_py).groups()[0]
 print(version)
@@ -42,28 +42,32 @@ with io.open(os.path.join(here, 'README.md'), 'r', encoding='utf-8') as f:
 # installation packages
 packages = find_packages(
     exclude=[
-        "docs*", "build*", "examples*",
-        "dist*", "dendritex.egg-info*", "dendritex/__pycache__*"
+        "docs*",
+        "build*", ""
+                  "examples*",
+        "dist*",
+        "braincell.egg-info*",
+        "braincell/__pycache__*"
     ]
 )
 
 # setup
 setup(
-    name='dendritex',
+    name='braincell',
     version=version,
-    description='Dendrite Modeling in Python',
+    description='Biologically Detailed Brain Cell Modeling in JAX',
     long_description=README,
     long_description_content_type="text/markdown",
-    author='Dendritex Developers',
+    author='BrainCell Developers',
     author_email='chao.brain@qq.com',
     packages=packages,
     python_requires='>=3.9',
     install_requires=['numpy>=1.15', 'jax', 'brainunit>=0.0.2.post20240903', 'brainstate>=0.1.0'],
-    url='https://github.com/chaobrain/dendritex',
+    url='https://github.com/chaobrain/braincell',
     project_urls={
-        "Bug Tracker": "https://github.com/chaobrain/dendritex/issues",
+        "Bug Tracker": "https://github.com/chaobrain/braincell/issues",
         "Documentation": "https://dendrite.readthedocs.io/",
-        "Source Code": "https://github.com/chaobrain/dendritex",
+        "Source Code": "https://github.com/chaobrain/braincell",
     },
     extras_require={
         'cpu': ['jaxlib'],
@@ -85,6 +89,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: Apache Software License',
         'Topic :: Scientific/Engineering :: Bio-Informatics',

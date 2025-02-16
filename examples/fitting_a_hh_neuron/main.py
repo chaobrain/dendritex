@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import dendritex as dx
+import braincell
 
 bst.environ.set(dt=0.01 * u.ms)
 
@@ -37,8 +37,8 @@ inp_traces = df_inp_traces.to_numpy()[:, 1:] * 1e9 * u.nA  # input currents
 mem_traces = df_out_traces.to_numpy()[:, 1:] * u.mV  # membrane potentials to record
 
 
-class INa(dx.Channel):
-    root_type = dx.HHTypedNeuron
+class INa(braincell.Channel):
+    root_type = braincell.HHTypedNeuron
 
     def __init__(
         self,
@@ -53,8 +53,8 @@ class INa(dx.Channel):
         self.V_th = bst.init.param(vth, self.varshape)
 
     def init_state(self, V, batch_size=None):
-        self.m = dx.DiffEqState(bst.init.param(u.math.zeros, self.varshape))
-        self.h = dx.DiffEqState(bst.init.param(u.math.zeros, self.varshape))
+        self.m = braincell.DiffEqState(bst.init.param(u.math.zeros, self.varshape))
+        self.h = braincell.DiffEqState(bst.init.param(u.math.zeros, self.varshape))
 
     #  m channel
     m_alpha = lambda self, V: 0.32 * 4 / u.math.exprel((13. * u.mV - V + self.V_th).to_decimal(u.mV) / 4.)
@@ -78,8 +78,8 @@ class INa(dx.Channel):
         return (self.gNa * m * m * m * h) * (self.ENa - V)
 
 
-class IK(dx.Channel):
-    root_type = dx.HHTypedNeuron
+class IK(braincell.Channel):
+    root_type = braincell.HHTypedNeuron
 
     def __init__(
         self,
@@ -94,7 +94,7 @@ class IK(dx.Channel):
         self.V_th = bst.init.param(vth, self.varshape)
 
     def init_state(self, V, batch_size=None):
-        self.n = dx.DiffEqState(bst.init.param(u.math.zeros, self.varshape))
+        self.n = braincell.DiffEqState(bst.init.param(u.math.zeros, self.varshape))
 
     # n channel
     n_alpha = lambda self, V: 0.032 * 5 / u.math.exprel((15. * u.mV - V + self.V_th).to_decimal(u.mV) / 5.)
@@ -110,7 +110,7 @@ class IK(dx.Channel):
         return (self.gK * n2 * n2) * (self.EK - V)
 
 
-class HH(dx.neurons.SingleCompartment):
+class HH(braincell.neuron.SingleCompartment):
     def __init__(
         self,
         size,
@@ -123,7 +123,7 @@ class HH(dx.neurons.SingleCompartment):
         super().__init__(size, V_initializer=v_initializer, C=C)
         self.ina = INa(size, gNa=gNa)
         self.ik = IK(size, gK=gK)
-        self.il = dx.channels.IL(size, g_max=gL, E=-65. * u.mV)
+        self.il = braincell.channel.IL(size, g_max=gL, E=-65. * u.mV)
 
 
 def visualize_target(voltages):
@@ -166,7 +166,7 @@ def simulate_model(gl, g_na, g_kd, C):
 
     def step_fun(i, inp):
         with bst.environ.context(i=i, t=bst.environ.get_dt() * i):
-            dx.rk4_step(hh, bst.environ.get('t'), inp)
+            braincell.rk4_step(hh, bst.environ.get('t'), inp)
         return hh.V.value
 
     indices = np.arange(current.shape[0])

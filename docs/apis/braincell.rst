@@ -1,8 +1,8 @@
 ``dendritex`` module
 ====================
 
-.. currentmodule:: dendritex
-.. automodule:: dendritex
+.. currentmodule:: braincell
+.. automodule:: braincell
 
 
 

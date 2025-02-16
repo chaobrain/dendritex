@@ -21,8 +21,8 @@ import numpy as np
 from typing import Union, Optional, Callable, Sequence, Tuple
 
 import brainstate as bst
-from dendritex._base import HHTypedNeuron, IonChannel
-from dendritex._integrators import DiffEqState
+from braincell._base import HHTypedNeuron, IonChannel
+from braincell._integrators import DiffEqState
 
 __all__ = [
     'MultiCompartment',
@@ -31,15 +31,15 @@ __all__ = [
 
 def diffusive_coupling(potentials, coo_ids, resistances):
     """
-    Compute the diffusive coupling currents between neurons.
+    Compute the diffusive coupling currents between neuron.
 
-    :param potentials: The membrane potential of neurons.
+    :param potentials: The membrane potential of neuron.
     :param coo_ids: The COO format of the adjacency matrix.
     :param resistances: The weight/resistances of each connection.
     :return: The output of the operator, which computes the diffusive coupling currents.
     """
     # potential: [n,]
-    #    The membrane potential of neurons.
+    #    The membrane potential of neuron.
     #    Should be a 1D array.
     # coo_ids: [m, 2]
     #    The COO format of the adjacency matrix.
@@ -117,7 +117,7 @@ def init_coupling_weight(n_compartment, connection, diam, L, Ra):
 
 
 class MultiCompartment(HHTypedNeuron):
-    __module__ = 'dendritex.neurons'
+    __module__ = 'braincell.neuron'
 
     def __init__(
         self,
@@ -200,8 +200,8 @@ class MultiCompartment(HHTypedNeuron):
         # 4. derivatives
         self.V.derivative = (I_ext + I_axial + I_syn + I_channel) / self.cm
 
-        # [ integrate dynamics of ion and ion channels ]
-        # check whether the children channels have the correct parents.
+        # [ integrate dynamics of ion and ion channel ]
+        # check whether the children channel have the correct parents.
         for key, node in self.nodes(IonChannel, allowed_hierarchy=(1, 1)).items():
             node.compute_derivative(self.V.value)
 

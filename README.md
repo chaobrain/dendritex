@@ -1,38 +1,38 @@
 
 
-# Dendritic Modeling in JAX
+# Biologically Detailed Brain Cell Modeling in JAX
 
 <p align="center">
-  	<img alt="Header image of dendritex." src="https://github.com/chaoming0625/dendritex/blob/main/docs/_static/dendritex.png" width=50%>
+  	<img alt="Header image of BrainCell." src="https://raw.githubusercontent.com/chaobrain/braincell/blob/main/docs/_static/braincell.png" width=50%>
 </p> 
 
 
 
 <p align="center">
-	<a href="https://pypi.org/project/dendritex/"><img alt="Supported Python Version" src="https://img.shields.io/pypi/pyversions/dendritex"></a>
-	<a href="https://github.com/chaoming0625/dendritex/blob/main/LICENSE"><img alt="LICENSE" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
-    <a href='https://dendrite.readthedocs.io/en/latest/?badge=latest'>
-        <img src='https://readthedocs.org/projects/dendrite/badge/?version=latest' alt='Documentation Status' />
+	<a href="https://pypi.org/project/braincell/"><img alt="Supported Python Version" src="https://img.shields.io/pypi/pyversions/braincell"></a>
+	<a href="https://github.com/chaobrain/braincell/blob/main/LICENSE"><img alt="LICENSE" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
+    <a href='https://braincell.readthedocs.io/en/latest/?badge=latest'>
+        <img src='https://readthedocs.org/projects/braincell/badge/?version=latest' alt='Documentation Status' />
     </a>  	
-    <a href="https://badge.fury.io/py/dendritex"><img alt="PyPI version" src="https://badge.fury.io/py/dendritex.svg"></a>
-    <a href="https://github.com/chaoming0625/dendritex/actions/workflows/CI.yml"><img alt="Continuous Integration" src="https://github.com/chaoming0625/dendritex/actions/workflows/CI.yml/badge.svg"></a>
+    <a href="https://badge.fury.io/py/braincell"><img alt="PyPI version" src="https://badge.fury.io/py/braincell.svg"></a>
+    <a href="https://github.com/chaobrain/braincell/actions/workflows/CI.yml"><img alt="Continuous Integration" src="https://github.com/chaobrain/braincell/actions/workflows/CI.yml/badge.svg"></a>
 </p>
 
 
-[//]: # ([``dendritex``]&#40;https://github.com/chaoming0625/dendritex&#41; provides physical units and unit-aware mathematical system in JAX for brain dynamics and AI4Science)
+[//]: # ([``braincell``]&#40;https://github.com/chaobrain/braincell&#41; provides physical units and unit-aware mathematical system in JAX for brain dynamics and AI4Science)
     
 
 ## Installation
 
-You can install ``dendritex`` via pip:
+You can install ``braincell`` via pip:
 
 ```bash
-pip install dendritex --upgrade
+pip install braincell --upgrade
 ```
 
 ## Documentation
 
-The official documentation is hosted on Read the Docs: [https://dendrite.readthedocs.io](https://dendrite.readthedocs.io)
+The official documentation is hosted on Read the Docs: [https://braincell.readthedocs.io](https://braincell.readthedocs.io)
 
 
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module implements voltage-dependent potassium channels.
+This module implements voltage-dependent potassium channel.
 
 """
 
@@ -12,9 +12,9 @@ from typing import Union, Callable, Optional, Sequence
 import brainstate as bst
 import brainunit as bu
 
-from dendritex._base import Channel, IonInfo
-from dendritex._integrators import DiffEqState
-from dendritex.ions import Potassium
+from braincell._base import Channel, IonInfo
+from braincell._integrators import DiffEqState
+from braincell.ion import Potassium
 
 __all__ = [
     'PotassiumChannel',
@@ -37,7 +37,7 @@ __all__ = [
 
 class PotassiumChannel(Channel):
     """Base class for sodium channel dynamics."""
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     root_type = Potassium
 
@@ -164,7 +164,7 @@ class IKDR_Ba2002(_IK_p4_markov):
            and transitions to activated states." Journal of neuroscience 22.19 (2002): 8691-8704.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -234,7 +234,7 @@ class IK_TM1991(_IK_p4_markov):
     --------
     INa_TM1991
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -297,7 +297,7 @@ class IK_HH1952(_IK_p4_markov):
     --------
     INa_HH1952
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -331,7 +331,7 @@ class _IKA_p4q_ss(PotassiumChannel):
     current which described with steady-state format.
 
     This model is developed according to the average behavior of
-    rapidly inactivating Potassium channel in Thalamus relay neurons [2]_ [3]_.
+    rapidly inactivating Potassium channel in Thalamus relay neuron [2]_ [3]_.
 
     .. math::
 
@@ -358,10 +358,10 @@ class _IKA_p4q_ss(PotassiumChannel):
     ----------
     .. [2] Huguenard, John R., and David A. McCormick. "Simulation of the
            currents involved in rhythmic oscillations in thalamic relay
-           neurons." Journal of neurophysiology 68.4 (1992): 1373-1383.
+           neuron." Journal of neurophysiology 68.4 (1992): 1373-1383.
     .. [3] Huguenard, J. R., and D. A. Prince. "Slow inactivation of a
            TEA-sensitive K current in acutely isolated rat thalamic relay
-           neurons." Journal of neurophysiology 66.4 (1991): 1316-1328.
+           neuron." Journal of neurophysiology 66.4 (1991): 1316-1328.
     """
 
     def __init__(
@@ -414,7 +414,7 @@ class IKA1_HM1992(_IKA_p4q_ss):
     r"""The rapidly inactivating Potassium channel (IA1) model proposed by (Huguenard & McCormick, 1992) [2]_.
 
     This model is developed according to the average behavior of
-    rapidly inactivating Potassium channel in Thalamus relay neurons [2]_ [1]_.
+    rapidly inactivating Potassium channel in Thalamus relay neuron [2]_ [1]_.
 
     .. math::
 
@@ -448,16 +448,16 @@ class IKA1_HM1992(_IKA_p4q_ss):
     ----------
     .. [2] Huguenard, John R., and David A. McCormick. "Simulation of the
            currents involved in rhythmic oscillations in thalamic relay
-           neurons." Journal of neurophysiology 68.4 (1992): 1373-1383.
+           neuron." Journal of neurophysiology 68.4 (1992): 1373-1383.
     .. [1] Huguenard, J. R., and D. A. Prince. "Slow inactivation of a
            TEA-sensitive K current in acutely isolated rat thalamic relay
-           neurons." Journal of neurophysiology 66.4 (1991): 1316-1328.
+           neuron." Journal of neurophysiology 66.4 (1991): 1316-1328.
 
     See Also
     --------
     IKA2_HM1992
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -506,7 +506,7 @@ class IKA2_HM1992(_IKA_p4q_ss):
     r"""The rapidly inactivating Potassium channel (IA2) model proposed by (Huguenard & McCormick, 1992) [2]_.
 
     This model is developed according to the average behavior of
-    rapidly inactivating Potassium channel in Thalamus relay neurons [2]_ [1]_.
+    rapidly inactivating Potassium channel in Thalamus relay neuron [2]_ [1]_.
 
     .. math::
 
@@ -540,16 +540,16 @@ class IKA2_HM1992(_IKA_p4q_ss):
     ----------
     .. [2] Huguenard, John R., and David A. McCormick. "Simulation of the
            currents involved in rhythmic oscillations in thalamic relay
-           neurons." Journal of neurophysiology 68.4 (1992): 1373-1383.
+           neuron." Journal of neurophysiology 68.4 (1992): 1373-1383.
     .. [1] Huguenard, J. R., and D. A. Prince. "Slow inactivation of a
            TEA-sensitive K current in acutely isolated rat thalamic relay
-           neurons." Journal of neurophysiology 66.4 (1991): 1316-1328.
+           neuron." Journal of neurophysiology 66.4 (1991): 1316-1328.
 
     See Also
     --------
     IKA1_HM1992
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -625,10 +625,10 @@ class _IKK2_pq_ss(PotassiumChannel):
     ----------
     .. [2] Huguenard, John R., and David A. McCormick. "Simulation of the
            currents involved in rhythmic oscillations in thalamic relay
-           neurons." Journal of neurophysiology 68.4 (1992): 1373-1383.
+           neuron." Journal of neurophysiology 68.4 (1992): 1373-1383.
     .. [3] Huguenard, J. R., and D. A. Prince. "Slow inactivation of a
            TEA-sensitive K current in acutely isolated rat thalamic relay
-           neurons." Journal of neurophysiology 66.4 (1991): 1316-1328.
+           neuron." Journal of neurophysiology 66.4 (1991): 1316-1328.
 
     """
 
@@ -714,13 +714,13 @@ class IKK2A_HM1992(_IKK2_pq_ss):
     ----------
     .. [2] Huguenard, John R., and David A. McCormick. "Simulation of the
            currents involved in rhythmic oscillations in thalamic relay
-           neurons." Journal of neurophysiology 68.4 (1992): 1373-1383.
+           neuron." Journal of neurophysiology 68.4 (1992): 1373-1383.
     .. [3] Huguenard, J. R., and D. A. Prince. "Slow inactivation of a
            TEA-sensitive K current in acutely isolated rat thalamic relay
-           neurons." Journal of neurophysiology 66.4 (1991): 1316-1328.
+           neuron." Journal of neurophysiology 66.4 (1991): 1316-1328.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -800,13 +800,13 @@ class IKK2B_HM1992(_IKK2_pq_ss):
     ----------
     .. [2] Huguenard, John R., and David A. McCormick. "Simulation of the
            currents involved in rhythmic oscillations in thalamic relay
-           neurons." Journal of neurophysiology 68.4 (1992): 1373-1383.
+           neuron." Journal of neurophysiology 68.4 (1992): 1373-1383.
     .. [3] Huguenard, J. R., and D. A. Prince. "Slow inactivation of a
            TEA-sensitive K current in acutely isolated rat thalamic relay
-           neurons." Journal of neurophysiology 66.4 (1991): 1316-1328.
+           neuron." Journal of neurophysiology 66.4 (1991): 1316-1328.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -885,10 +885,10 @@ class IKNI_Ya1989(PotassiumChannel):
 
     References
     ----------
-    .. [1] Yamada, Walter M. "Multiple channels and calcium dynamics." Methods in neuronal modeling (1989): 97-133.
+    .. [1] Yamada, Walter M. "Multiple channel and calcium dynamics." Methods in neuronal modeling (1989): 97-133.
 
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -942,7 +942,7 @@ class IK_Leak(PotassiumChannel):
       The potassium leakage conductance which is modulated by both
       acetylcholine and norepinephrine.
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     root_type = Potassium
 
@@ -997,7 +997,7 @@ class IKv11_Ak2007(PotassiumChannel):
     Date of Implementation: April 2007
     Contact: akemann@brain.riken.jp
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -1071,7 +1071,7 @@ class IKv34_Ma2020(PotassiumChannel):
     : HH TEA-sensitive Purkinje potassium current
     : Created 8/5/02 - nwg
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -1160,7 +1160,7 @@ class IKv43_Ma2020(PotassiumChannel):
       Author: E.D'Angelo, T.Nieus, A. Fontana
       Last revised: Egidio 3.12.2003
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,
@@ -1263,7 +1263,7 @@ class IKM_Grc_Ma2020(PotassiumChannel):
       Author: A. Fontana
       CoAuthor: T.Nieus Last revised: 20.11.99
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     def __init__(
         self,

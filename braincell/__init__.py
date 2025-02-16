@@ -16,9 +16,9 @@
 
 __version__ = "0.0.1"
 
-from . import channels
-from . import ions
-from . import neurons
+from . import channel
+from . import ion
+from . import neuron
 from ._base import *
 from ._base import __all__ as _base_all
 from ._integrators import *
@@ -27,7 +27,7 @@ from ._protocol import *
 from ._protocol import __all__ as _protocol_all
 
 __all__ = (
-    ['neurons', 'ions', 'channels']
+    ['neuron', 'ion', 'channel']
     + _base_all
     + _integrators_all
     + _protocol_all

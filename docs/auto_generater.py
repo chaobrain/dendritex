@@ -268,8 +268,8 @@ def _import(mod, klass=None, is_jax=False):
 def main():
   os.makedirs('apis/', exist_ok=True)
 
-  _write_module(module_name='dendritex._integrators',
-                automodule='dendritex',
+  _write_module(module_name='braincell._integrators',
+                automodule='braincell',
                 filename='apis/integration.rst',
                 header='Numerical Integration Methods',
                 template=True)
@@ -280,9 +280,9 @@ def main():
   ]
 
   _write_submodules(
-    module_name='dendritex.neurons',
-    filename='apis/dendritex.neurons.rst',
-    header='``dendritex.neurons`` module',
+    module_name='braincell.neuron',
+    filename='apis/braincell.neuron.rst',
+    header='``braincell.neuron`` module',
     submodule_names=[k[0] for k in module_and_name],
     section_names=[k[1] for k in module_and_name]
   )
@@ -294,9 +294,9 @@ def main():
   ]
 
   _write_submodules(
-    module_name='dendritex.ions',
-    filename='apis/dendritex.ions.rst',
-    header='``dendritex.ions`` module',
+    module_name='braincell.ion',
+    filename='apis/braincell.ion.rst',
+    header='``braincell.ion`` module',
     submodule_names=[k[0] for k in module_and_name],
     section_names=[k[1] for k in module_and_name]
   )
@@ -311,9 +311,9 @@ def main():
   ]
 
   _write_submodules(
-    module_name='dendritex.channels',
-    filename='apis/dendritex.channels.rst',
-    header='``dendritex.channels`` module',
+    module_name='braincell.channel',
+    filename='apis/braincell.channel.rst',
+    header='``braincell.channel`` module',
     submodule_names=[k[0] for k in module_and_name],
     section_names=[k[1] for k in module_and_name]
   )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module implements leakage channels.
+This module implements leakage channel.
 
 """
 
@@ -12,7 +12,7 @@ from typing import Union, Callable, Sequence, Optional
 import brainstate as bst
 import brainunit as bu
 
-from dendritex._base import HHTypedNeuron, Channel
+from braincell._base import HHTypedNeuron, Channel
 
 __all__ = [
     'LeakageChannel',
@@ -24,7 +24,7 @@ class LeakageChannel(Channel):
     """
     Base class for leakage channel dynamics.
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
 
     root_type = HHTypedNeuron
 
@@ -57,7 +57,7 @@ class IL(LeakageChannel):
     E : float
       The reversal potential.
     """
-    __module__ = 'dendritex.channels'
+    __module__ = 'braincell.channel'
     root_type = HHTypedNeuron
 
     def __init__(
