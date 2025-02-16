@@ -36,7 +36,7 @@ The official documentation is hosted on Read the Docs: [https://braincell.readth
 
 
 
-## See also the BDP ecosystem
+## See also the brain modeling ecosystem
 
-We are building the BDP ecosystem: https://ecosystem-for-brain-dynamics.readthedocs.io/
+We are building the BDP ecosystem: https://brainmodeling.readthedocs.io/
 

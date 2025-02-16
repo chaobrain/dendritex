@@ -1,4 +1,4 @@
-``dendritex`` module
+``braincell`` module
 ====================
 
 .. currentmodule:: braincell

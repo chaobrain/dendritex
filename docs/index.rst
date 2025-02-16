@@ -36,11 +36,11 @@ Installation
 ----
 
 
-See also the BDP ecosystem
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+See also the brain modeling ecosystem
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-We are building the `BDP ecosystem <https://ecosystem-for-brain-dynamics.readthedocs.io/>`_.
+We are building the `brain modeling ecosystem <https://brain-modeling.readthedocs.io/>`_.
 
 
 
@@ -52,9 +52,9 @@ We are building the `BDP ecosystem <https://ecosystem-for-brain-dynamics.readthe
 
    apis/changelog.md
    apis/braincell.rst
-   apis/braincell.neurons.rst
-   apis/braincell.ions.rst
-   apis/braincell.channels.rst
+   apis/braincell.neuron.rst
+   apis/braincell.ion.rst
+   apis/braincell.channel.rst
    apis/integration.rst
 
 
