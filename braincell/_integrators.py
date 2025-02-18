@@ -666,12 +666,15 @@ def exponential_euler(f, y0, t, dt, args=()):
 def _dict_derivative_to_arr(a_dict: Dict[Any, DiffEqState]):
     a_dict = {key: val.derivative for key, val in a_dict.items()}
     leaves = jax.tree.leaves(a_dict)
+    leaves = [jnp.expand_dims(leaf, axis=0) if leaf.ndim == 0 else leaf
+              for leaf in leaves]
     return jnp.concatenate(leaves, axis=-1)
 
 
 def _dict_state_to_arr(a_dict: Dict[Any, brainstate.State]):
     a_dict = {key: val.value for key, val in a_dict.items()}
     leaves = jax.tree.leaves(a_dict)
+    leaves = [jnp.expand_dims(leaf, axis=0) if leaf.ndim == 0 else leaf for leaf in leaves]
     return jnp.concatenate(leaves, axis=-1)
 
 
@@ -680,8 +683,12 @@ def _assign_arr_to_states(vals: jax.Array, states: Dict[Any, brainstate.State]):
     index = 0
     vals_like_leaves = []
     for leaf in leaves:
-        vals_like_leaves.append(vals[..., index: index + leaf.shape[-1]])
-        index += leaf.shape[-1]
+        if leaf.ndim == 0:
+            vals_like_leaves.append(vals[..., index])
+            index += 1
+        else:
+            vals_like_leaves.append(vals[..., index: index + leaf.shape[-1]])
+            index += leaf.shape[-1]
     vals_like_states = jax.tree.unflatten(tree_def, vals_like_leaves)
     for key, state_val in vals_like_states.items():
         states[key].value = state_val
