@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Union, Callable, Optional
 
-import brainstate as bst
+import brainstate
 import brainunit as u
 
 from braincell._base import Channel, IonInfo
@@ -101,20 +101,20 @@ class ICaN_IS2008(CalciumChannel):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        E: Union[bst.typing.ArrayLike, Callable] = 10. * u.mV,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 1. * (u.mS / u.cm ** 2),
-        phi: Union[bst.typing.ArrayLike, Callable] = 1.,
+        size: brainstate.typing.Size,
+        E: Union[brainstate.typing.ArrayLike, Callable] = 10. * u.mV,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 1. * (u.mS / u.cm ** 2),
+        phi: Union[brainstate.typing.ArrayLike, Callable] = 1.,
         name: Optional[str] = None,
     ):
         super().__init__(size=size, name=name, )
         # parameters
-        self.E = bst.init.param(E, self.varshape, allow_none=False)
-        self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
-        self.phi = bst.init.param(phi, self.varshape, allow_none=False)
+        self.E = brainstate.init.param(E, self.varshape, allow_none=False)
+        self.g_max = brainstate.init.param(g_max, self.varshape, allow_none=False)
+        self.phi = brainstate.init.param(phi, self.varshape, allow_none=False)
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         V = V.to_decimal(u.mV)
@@ -163,22 +163,22 @@ class _ICa_p2q_ss(CalciumChannel):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        phi_p: Union[bst.typing.ArrayLike, Callable] = 3.,
-        phi_q: Union[bst.typing.ArrayLike, Callable] = 3.,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 2. * (u.mS / u.cm ** 2),
+        size: brainstate.typing.Size,
+        phi_p: Union[brainstate.typing.ArrayLike, Callable] = 3.,
+        phi_q: Union[brainstate.typing.ArrayLike, Callable] = 3.,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 2. * (u.mS / u.cm ** 2),
         name: Optional[str] = None
     ):
         super().__init__(size=size, name=name, )
 
         # parameters
-        self.phi_p = bst.init.param(phi_p, self.varshape, allow_none=False)
-        self.phi_q = bst.init.param(phi_q, self.varshape, allow_none=False)
-        self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
+        self.phi_p = brainstate.init.param(phi_p, self.varshape, allow_none=False)
+        self.phi_q = brainstate.init.param(phi_q, self.varshape, allow_none=False)
+        self.g_max = brainstate.init.param(g_max, self.varshape, allow_none=False)
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.q = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -238,22 +238,22 @@ class _ICa_p2q_markov(CalciumChannel):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        phi_p: Union[bst.typing.ArrayLike, Callable] = 3.,
-        phi_q: Union[bst.typing.ArrayLike, Callable] = 3.,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 2. * (u.mS / u.cm ** 2),
+        size: brainstate.typing.Size,
+        phi_p: Union[brainstate.typing.ArrayLike, Callable] = 3.,
+        phi_q: Union[brainstate.typing.ArrayLike, Callable] = 3.,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 2. * (u.mS / u.cm ** 2),
         name: Optional[str] = None,
     ):
         super().__init__(size=size, name=name, )
 
         # parameters
-        self.phi_p = bst.init.param(phi_p, self.varshape, allow_none=False)
-        self.phi_q = bst.init.param(phi_q, self.varshape, allow_none=False)
-        self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
+        self.phi_p = brainstate.init.param(phi_p, self.varshape, allow_none=False)
+        self.phi_q = brainstate.init.param(phi_q, self.varshape, allow_none=False)
+        self.g_max = brainstate.init.param(g_max, self.varshape, allow_none=False)
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.q = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         alpha, beta = self.f_p_alpha(V), self.f_p_beta(V)
@@ -337,14 +337,14 @@ class ICaT_HM1992(_ICa_p2q_ss):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        T: bst.typing.ArrayLike = 36.,
-        T_base_p: bst.typing.ArrayLike = 3.55,
-        T_base_q: bst.typing.ArrayLike = 3.,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 2. * (u.mS / u.cm ** 2),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = -3. * u.mV,
-        phi_p: Union[bst.typing.ArrayLike, Callable] = None,
-        phi_q: Union[bst.typing.ArrayLike, Callable] = None,
+        size: brainstate.typing.Size,
+        T: brainstate.typing.ArrayLike = 36.,
+        T_base_p: brainstate.typing.ArrayLike = 3.55,
+        T_base_q: brainstate.typing.ArrayLike = 3.,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 2. * (u.mS / u.cm ** 2),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = -3. * u.mV,
+        phi_p: Union[brainstate.typing.ArrayLike, Callable] = None,
+        phi_q: Union[brainstate.typing.ArrayLike, Callable] = None,
         name: Optional[str] = None,
     ):
         phi_p = T_base_p ** ((T - 24) / 10) if phi_p is None else phi_p
@@ -358,10 +358,10 @@ class ICaT_HM1992(_ICa_p2q_ss):
         )
 
         # parameters
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base_p = bst.init.param(T_base_p, self.varshape, allow_none=False)
-        self.T_base_q = bst.init.param(T_base_q, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base_p = brainstate.init.param(T_base_p, self.varshape, allow_none=False)
+        self.T_base_q = brainstate.init.param(T_base_q, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
 
     def f_p_inf(self, V):
         V = (V - self.V_sh).to_decimal(u.mV)
@@ -438,14 +438,14 @@ class ICaT_HP1992(_ICa_p2q_ss):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        T: bst.typing.ArrayLike = 36.,
-        T_base_p: bst.typing.ArrayLike = 5.,
-        T_base_q: bst.typing.ArrayLike = 3.,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 1.75 * (u.mS / u.cm ** 2),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = -3. * u.mV,
-        phi_p: Union[bst.typing.ArrayLike, Callable] = None,
-        phi_q: Union[bst.typing.ArrayLike, Callable] = None,
+        size: brainstate.typing.Size,
+        T: brainstate.typing.ArrayLike = 36.,
+        T_base_p: brainstate.typing.ArrayLike = 5.,
+        T_base_q: brainstate.typing.ArrayLike = 3.,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 1.75 * (u.mS / u.cm ** 2),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = -3. * u.mV,
+        phi_p: Union[brainstate.typing.ArrayLike, Callable] = None,
+        phi_q: Union[brainstate.typing.ArrayLike, Callable] = None,
         name: Optional[str] = None,
     ):
         phi_p = T_base_p ** ((T - 24) / 10) if phi_p is None else phi_p
@@ -459,10 +459,10 @@ class ICaT_HP1992(_ICa_p2q_ss):
         )
 
         # parameters
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base_p = bst.init.param(T_base_p, self.varshape, allow_none=False)
-        self.T_base_q = bst.init.param(T_base_q, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base_p = brainstate.init.param(T_base_p, self.varshape, allow_none=False)
+        self.T_base_q = brainstate.init.param(T_base_q, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
 
     def f_p_inf(self, V):
         V = (V - self.V_sh).to_decimal(u.mV)
@@ -516,9 +516,9 @@ class ICaHT_HM1992(_ICa_p2q_ss):
       The brainpy_object temperature factor of :math:`p` channel.
     T_base_q : float, ArrayType
       The brainpy_object temperature factor of :math:`q` channel.
-    g_max : bst.typing.ArrayLike, Callable
+    g_max : brainstate.typing.ArrayLike, Callable
       The maximum conductance.
-    V_sh : bst.typing.ArrayLike, Callable
+    V_sh : brainstate.typing.ArrayLike, Callable
       The membrane potential shift.
 
     References
@@ -536,12 +536,12 @@ class ICaHT_HM1992(_ICa_p2q_ss):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        T: bst.typing.ArrayLike = 36.,
-        T_base_p: bst.typing.ArrayLike = 3.55,
-        T_base_q: bst.typing.ArrayLike = 3.,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 2. * (u.mS / u.cm ** 2),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = 25. * u.mV,
+        size: brainstate.typing.Size,
+        T: brainstate.typing.ArrayLike = 36.,
+        T_base_p: brainstate.typing.ArrayLike = 3.55,
+        T_base_q: brainstate.typing.ArrayLike = 3.,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 2. * (u.mS / u.cm ** 2),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = 25. * u.mV,
         name: Optional[str] = None,
     ):
         super().__init__(
@@ -553,10 +553,10 @@ class ICaHT_HM1992(_ICa_p2q_ss):
         )
 
         # parameters
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base_p = bst.init.param(T_base_p, self.varshape, allow_none=False)
-        self.T_base_q = bst.init.param(T_base_q, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base_p = brainstate.init.param(T_base_p, self.varshape, allow_none=False)
+        self.T_base_q = brainstate.init.param(T_base_q, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
 
     def f_p_inf(self, V):
         V = (V - self.V_sh).to_decimal(u.mV)
@@ -633,14 +633,14 @@ class ICaHT_Re1993(_ICa_p2q_markov):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        T: bst.typing.ArrayLike = 36.,
-        T_base_p: bst.typing.ArrayLike = 2.3,
-        T_base_q: bst.typing.ArrayLike = 2.3,
-        phi_p: Union[bst.typing.ArrayLike, Callable] = None,
-        phi_q: Union[bst.typing.ArrayLike, Callable] = None,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 1. * (u.mS / u.cm ** 2),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = 0. * u.mV,
+        size: brainstate.typing.Size,
+        T: brainstate.typing.ArrayLike = 36.,
+        T_base_p: brainstate.typing.ArrayLike = 2.3,
+        T_base_q: brainstate.typing.ArrayLike = 2.3,
+        phi_p: Union[brainstate.typing.ArrayLike, Callable] = None,
+        phi_q: Union[brainstate.typing.ArrayLike, Callable] = None,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 1. * (u.mS / u.cm ** 2),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = 0. * u.mV,
         name: Optional[str] = None,
     ):
         phi_p = T_base_p ** ((T - 23.) / 10.) if phi_p is None else phi_p
@@ -652,10 +652,10 @@ class ICaHT_Re1993(_ICa_p2q_markov):
             phi_p=phi_p,
             phi_q=phi_q,
         )
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base_p = bst.init.param(T_base_p, self.varshape, allow_none=False)
-        self.T_base_q = bst.init.param(T_base_q, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base_p = brainstate.init.param(T_base_p, self.varshape, allow_none=False)
+        self.T_base_q = brainstate.init.param(T_base_q, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
 
     def f_p_alpha(self, V):
         V = (- V + self.V_sh).to_decimal(u.mV)
@@ -725,12 +725,12 @@ class ICaL_IS2008(_ICa_p2q_ss):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        T: Union[bst.typing.ArrayLike, Callable] = 36.,
-        T_base_p: Union[bst.typing.ArrayLike, Callable] = 3.55,
-        T_base_q: Union[bst.typing.ArrayLike, Callable] = 3.,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 1. * (u.mS / u.cm ** 2),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = 0. * u.mV,
+        size: brainstate.typing.Size,
+        T: Union[brainstate.typing.ArrayLike, Callable] = 36.,
+        T_base_p: Union[brainstate.typing.ArrayLike, Callable] = 3.55,
+        T_base_q: Union[brainstate.typing.ArrayLike, Callable] = 3.,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 1. * (u.mS / u.cm ** 2),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = 0. * u.mV,
         name: Optional[str] = None,
     ):
         super().__init__(
@@ -742,10 +742,10 @@ class ICaL_IS2008(_ICa_p2q_ss):
         )
 
         # parameters
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base_p = bst.init.param(T_base_p, self.varshape, allow_none=False)
-        self.T_base_q = bst.init.param(T_base_q, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base_p = brainstate.init.param(T_base_p, self.varshape, allow_none=False)
+        self.T_base_q = brainstate.init.param(T_base_q, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
 
     def f_p_inf(self, V):
         V = (V - self.V_sh).to_decimal(u.mV)
@@ -776,29 +776,29 @@ class ICav12_Ma2020(CalciumChannel):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 0 * (u.mS / u.cm ** 2),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = 0 * u.mV,
-        T_base: bst.typing.ArrayLike = 3,
-        T: bst.typing.ArrayLike = 22.,
+        size: brainstate.typing.Size,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 0 * (u.mS / u.cm ** 2),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = 0 * u.mV,
+        T_base: brainstate.typing.ArrayLike = 3,
+        T: brainstate.typing.ArrayLike = 22.,
         name: Optional[str] = None,
     ):
         super().__init__(size=size, name=name, )
 
         # parameters
-        self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base = bst.init.param(T_base, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
-        self.phi = bst.init.param(1., self.varshape, allow_none=False)
+        self.g_max = brainstate.init.param(g_max, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base = brainstate.init.param(T_base, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
+        self.phi = brainstate.init.param(1., self.varshape, allow_none=False)
 
         self.kf = 0.0005
         self.VDI = 0.17
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.m = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.h = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.n = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.m = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
+        self.h = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
+        self.n = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.m.value = self.f_m_inf(V)
@@ -849,29 +849,29 @@ class ICav13_Ma2020(CalciumChannel):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 0 * (u.mS / u.cm ** 2),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = 0 * u.mV,
-        T_base: bst.typing.ArrayLike = 3,
-        T: bst.typing.ArrayLike = 22.,
+        size: brainstate.typing.Size,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 0 * (u.mS / u.cm ** 2),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = 0 * u.mV,
+        T_base: brainstate.typing.ArrayLike = 3,
+        T: brainstate.typing.ArrayLike = 22.,
         name: Optional[str] = None,
     ):
         super().__init__(size=size, name=name, )
 
         # parameters
-        self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base = bst.init.param(T_base, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
-        self.phi = bst.init.param(1., self.varshape, allow_none=False)
+        self.g_max = brainstate.init.param(g_max, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base = brainstate.init.param(T_base, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
+        self.phi = brainstate.init.param(1., self.varshape, allow_none=False)
 
         self.kf = 0.0005
         self.VDI = 1
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.m = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.h = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.n = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.m = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
+        self.h = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
+        self.n = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.m.value = self.f_m_inf(V)
@@ -929,27 +929,27 @@ class ICav23_Ma2020(CalciumChannel):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 0 * (u.mS / u.cm ** 2),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = 0 * u.mV,
-        T_base: bst.typing.ArrayLike = 3,
-        T: bst.typing.ArrayLike = 22.,
+        size: brainstate.typing.Size,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 0 * (u.mS / u.cm ** 2),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = 0 * u.mV,
+        T_base: brainstate.typing.ArrayLike = 3,
+        T: brainstate.typing.ArrayLike = 22.,
         name: Optional[str] = None,
     ):
         super().__init__(size=size, name=name, )
 
         # parameters
-        self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base = bst.init.param(T_base, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
-        self.phi = bst.init.param(1., self.varshape, allow_none=False)
+        self.g_max = brainstate.init.param(g_max, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base = brainstate.init.param(T_base, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
+        self.phi = brainstate.init.param(1., self.varshape, allow_none=False)
 
         self.eca = 140 * u.mV
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.m = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.h = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.m = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
+        self.h = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.m.value = self.f_m_inf(V)
@@ -998,21 +998,21 @@ class ICav31_Ma2020(CalciumChannel):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 2.5e-4 * (u.cm / u.second),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = 0 * u.mV,
-        T_base: bst.typing.ArrayLike = 3,
-        T: bst.typing.ArrayLike = 22.,
+        size: brainstate.typing.Size,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 2.5e-4 * (u.cm / u.second),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = 0 * u.mV,
+        T_base: brainstate.typing.ArrayLike = 3,
+        T: brainstate.typing.ArrayLike = 22.,
         name: Optional[str] = None,
     ):
         super().__init__(size=size, name=name, )
 
         # parameters
-        self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base = bst.init.param(T_base, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
-        self.phi = bst.init.param(T_base ** ((T - 37) / 10), self.varshape, allow_none=False)
+        self.g_max = brainstate.init.param(g_max, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base = brainstate.init.param(T_base, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
+        self.phi = brainstate.init.param(T_base ** ((T - 37) / 10), self.varshape, allow_none=False)
 
         self.v0_m_inf = -52 * u.mV
         self.v0_h_inf = -72 * u.mV
@@ -1033,8 +1033,8 @@ class ICav31_Ma2020(CalciumChannel):
         self.z = 2
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.p = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.q = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.p = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
+        self.q = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.p.value = self.f_p_inf(V)
@@ -1062,7 +1062,7 @@ class ICav31_Ma2020(CalciumChannel):
     def f_q_tau(self, V):
         return self.C_tau_h + self.A_tau_h / u.math.exp((V - self.v0_tau_h1) / self.k_tau_h1)
 
-    def ghk(self, V, ci, co = 2 * u.mM):
+    def ghk(self, V, ci, co=2 * u.mM):
         zeta = (self.z * u.faraday_constant * V) / (u.gas_constant * u.celsius2kelvin(self.T))
         g_1 = (self.z * u.faraday_constant) * (ci - co * u.math.exp(-zeta)) * (1 + zeta / 2)
         g_2 = (self.z * zeta * u.faraday_constant) * (ci - co * u.math.exp(-zeta)) / (1 - u.math.exp(-zeta))
@@ -1089,21 +1089,21 @@ class ICaGrc_Ma2020(CalciumChannel):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        g_max: Union[bst.typing.ArrayLike, Callable] = 0.46 * (u.mS / u.cm ** 2),
-        V_sh: Union[bst.typing.ArrayLike, Callable] = 0 * u.mV,
-        T_base: bst.typing.ArrayLike = 3,
-        T: bst.typing.ArrayLike = 22.,
+        size: brainstate.typing.Size,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 0.46 * (u.mS / u.cm ** 2),
+        V_sh: Union[brainstate.typing.ArrayLike, Callable] = 0 * u.mV,
+        T_base: brainstate.typing.ArrayLike = 3,
+        T: brainstate.typing.ArrayLike = 22.,
         name: Optional[str] = None,
     ):
         super().__init__(size=size, name=name, )
 
         # parameters
-        self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
-        self.T = bst.init.param(T, self.varshape, allow_none=False)
-        self.T_base = bst.init.param(T_base, self.varshape, allow_none=False)
-        self.V_sh = bst.init.param(V_sh, self.varshape, allow_none=False)
-        self.phi = bst.init.param(T_base ** ((T - 20) / 10), self.varshape, allow_none=False)
+        self.g_max = brainstate.init.param(g_max, self.varshape, allow_none=False)
+        self.T = brainstate.init.param(T, self.varshape, allow_none=False)
+        self.T_base = brainstate.init.param(T_base, self.varshape, allow_none=False)
+        self.V_sh = brainstate.init.param(V_sh, self.varshape, allow_none=False)
+        self.phi = brainstate.init.param(T_base ** ((T - 20) / 10), self.varshape, allow_none=False)
 
         self.eca = 129.33 * u.mV
 
@@ -1124,8 +1124,8 @@ class ICaGrc_Ma2020(CalciumChannel):
         self.V0beta_u = -48
 
     def init_state(self, V, Ca: IonInfo, batch_size: int = None):
-        self.m = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
-        self.h = DiffEqState(bst.init.param(u.math.zeros, self.varshape, batch_size))
+        self.m = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
+        self.h = DiffEqState(brainstate.init.param(u.math.zeros, self.varshape, batch_size))
 
     def reset_state(self, V, Ca, batch_size=None):
         self.m.value = self.f_m_inf(V)

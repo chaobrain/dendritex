@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from typing import Union, Callable, Sequence, Optional
 
-import brainstate as bst
-import brainunit as bu
+import brainstate
+import brainunit as u
 
 from braincell._base import HHTypedNeuron, Channel
 
@@ -63,14 +63,14 @@ class IL(LeakageChannel):
     def __init__(
         self,
         size: Union[int, Sequence[int]],
-        g_max: Union[bst.typing.ArrayLike, Callable] = 0.1 * (bu.mS / bu.cm ** 2),
-        E: Union[bst.typing.ArrayLike, Callable] = -70. * bu.mV,
+        g_max: Union[brainstate.typing.ArrayLike, Callable] = 0.1 * (u.mS / u.cm ** 2),
+        E: Union[brainstate.typing.ArrayLike, Callable] = -70. * u.mV,
         name: Optional[str] = None,
     ):
         super().__init__(size=size, name=name, )
 
-        self.E = bst.init.param(E, self.varshape, allow_none=False)
-        self.g_max = bst.init.param(g_max, self.varshape, allow_none=False)
+        self.E = brainstate.init.param(E, self.varshape, allow_none=False)
+        self.g_max = brainstate.init.param(g_max, self.varshape, allow_none=False)
 
     def current(self, V):
         return self.g_max * (self.E - V)

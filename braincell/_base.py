@@ -20,12 +20,12 @@ from __future__ import annotations
 
 from typing import Optional, Dict, Sequence, Callable, NamedTuple, Tuple
 
-import brainstate as bst
+import brainstate
 import numpy as np
 from brainstate.mixin import _JointGenericAlias
 
-from ._protocol import DiffEqModule
 from ._misc import set_module_as, Container, TreeNode
+from ._protocol import DiffEqModule
 
 __all__ = [
     'HHTypedNeuron',
@@ -49,7 +49,7 @@ __all__ = [
 '''
 
 
-class HHTypedNeuron(bst.nn.Dynamics, Container, DiffEqModule):
+class HHTypedNeuron(brainstate.nn.Dynamics, Container, DiffEqModule):
     """
     The base class for the Hodgkin-Huxley typed neuronal membrane dynamics.
     """
@@ -58,7 +58,7 @@ class HHTypedNeuron(bst.nn.Dynamics, Container, DiffEqModule):
 
     def __init__(
         self,
-        size: bst.typing.Size,
+        size: brainstate.typing.Size,
         name: Optional[str] = None,
         **ion_channels
     ):
@@ -79,14 +79,20 @@ class HHTypedNeuron(bst.nn.Dynamics, Container, DiffEqModule):
         self.size = size
         assert len(size) >= 1, ('The size of the dendritic dynamics should be at '
                                 'least 1D: (..., n_neuron, n_compartment).')
-        self.pop_size: Tuple[int, ...] = size[:-1]
-        self.n_compartment: int = size[-1]
 
         # initialize
         super().__init__(size, name=name)
 
         # attribute for ``Container``
         self.ion_channels = self._format_elements(IonChannel, **ion_channels)
+
+    @property
+    def pop_size(self) -> Tuple[int, ...]:
+        raise NotImplementedError
+
+    @property
+    def n_compartment(self) -> int:
+        raise NotImplementedError
 
     def current(self, *args, **kwargs):
         raise NotImplementedError('Must be implemented by the subclass.')
@@ -125,7 +131,7 @@ class HHTypedNeuron(bst.nn.Dynamics, Container, DiffEqModule):
         self.ion_channels.update(self._format_elements(IonChannel, **elements))
 
 
-class IonChannel(bst.graph.Node, TreeNode, DiffEqModule):
+class IonChannel(brainstate.graph.Node, TreeNode, DiffEqModule):
     """
     The base class for ion channel modeling.
 
@@ -146,7 +152,7 @@ class IonChannel(bst.graph.Node, TreeNode, DiffEqModule):
 
     def __init__(
         self,
-        size: bst.typing.Size,
+        size: brainstate.typing.Size,
         name: Optional[str] = None,
     ):
         # size
@@ -200,8 +206,8 @@ class IonInfo(NamedTuple):
         E: The reversal potential.
         C: The ion concentration.
     """
-    C: bst.typing.ArrayLike
-    E: bst.typing.ArrayLike
+    C: brainstate.typing.ArrayLike
+    E: brainstate.typing.ArrayLike
 
 
 class Ion(IonChannel, Container):
@@ -220,7 +226,7 @@ class Ion(IonChannel, Container):
 
     def __init__(
         self,
-        size: bst.typing.Size,
+        size: brainstate.typing.Size,
         name: Optional[str] = None,
         **channels
     ):
@@ -231,17 +237,17 @@ class Ion(IonChannel, Container):
         self._external_currents: Dict[str, Callable] = dict()
 
     def pre_integral(self, V):
-        nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1))
+        nodes = brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1))
         for node in nodes.values():
             node.pre_integral(V, self.pack_info())
 
     def compute_derivative(self, V):
-        nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1))
+        nodes = brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1))
         for node in nodes.values():
             node.compute_derivative(V, self.pack_info())
 
     def post_integral(self, V):
-        nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1))
+        nodes = brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1))
         for node in nodes.values():
             node.post_integral(V, self.pack_info())
 
@@ -256,7 +262,7 @@ class Ion(IonChannel, Container):
         Returns:
           Current.
         """
-        nodes = tuple(bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
+        nodes = tuple(brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
 
         ion_info = self.pack_info()
         current = None
@@ -272,7 +278,7 @@ class Ion(IonChannel, Container):
         return current
 
     def init_state(self, V, batch_size: int = None):
-        nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values()
+        nodes = brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values()
         self.check_hierarchies(type(self), *tuple(nodes))
         ion_info = self.pack_info()
         for node in nodes:
@@ -280,7 +286,7 @@ class Ion(IonChannel, Container):
             node.init_state(V, ion_info, batch_size)
 
     def reset_state(self, V, batch_size: int = None):
-        nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values()
+        nodes = brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values()
         ion_info = self.pack_info()
         for node in nodes:
             node: Channel
@@ -293,8 +299,8 @@ class Ion(IonChannel, Container):
 
     def pack_info(self) -> IonInfo:
         E = self.E
-        E = E.value if isinstance(E, bst.State) else E
-        C = self.C.value if isinstance(self.C, bst.State) else self.C
+        E = E.value if isinstance(E, brainstate.State) else E
+        C = self.C.value if isinstance(self.C, brainstate.State) else self.C
         return IonInfo(E=E, C=C)
 
     def add_elem(self, **elements):
@@ -338,19 +344,19 @@ class MixIons(IonChannel, Container):
         self.channels.update(self._format_elements(Channel, **channels))
 
     def pre_integral(self, V):
-        nodes = tuple(bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
+        nodes = tuple(brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
         for node in nodes:
             ion_infos = tuple([self._get_ion(ion).pack_info() for ion in node.root_type.__args__])
             node.pre_integral(V, *ion_infos)
 
     def compute_derivative(self, V):
-        nodes = tuple(bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
+        nodes = tuple(brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
         for node in nodes:
             ion_infos = tuple([self._get_ion(ion).pack_info() for ion in node.root_type.__args__])
             node.compute_derivative(V, *ion_infos)
 
     def post_integral(self, V):
-        nodes = tuple(bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
+        nodes = tuple(brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
         for node in nodes:
             ion_infos = tuple([self._get_ion(ion).pack_info() for ion in node.root_type.__args__])
             node.post_integral(V, *ion_infos)
@@ -364,7 +370,7 @@ class MixIons(IonChannel, Container):
         Returns:
           Current.
         """
-        nodes = tuple(bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
+        nodes = tuple(brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
 
         if len(nodes) == 0:
             return 0.
@@ -376,7 +382,7 @@ class MixIons(IonChannel, Container):
             return current
 
     def init_state(self, V, batch_size: int = None):
-        nodes = bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values()
+        nodes = brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values()
         self.check_hierarchies(self._ion_types, *tuple(nodes), check_fun=self._check_hierarchy)
         for node in nodes:
             node: Channel
@@ -384,7 +390,7 @@ class MixIons(IonChannel, Container):
             node.init_state(V, *infos, batch_size)
 
     def reset_state(self, V, batch_size=None):
-        nodes = tuple(bst.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
+        nodes = tuple(brainstate.graph.nodes(self, Channel, allowed_hierarchy=(1, 1)).values())
         for node in nodes:
             infos = tuple([self._get_ion(root).pack_info() for root in node.root_type.__args__])
             node.reset_state(V, *infos, batch_size)

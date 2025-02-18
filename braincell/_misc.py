@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-import brainstate as bst
+import brainstate
 
 
 def set_module_as(name: str):
@@ -28,7 +28,7 @@ def set_module_as(name: str):
     return decorator
 
 
-class Container(bst.mixin.Mixin):
+class Container(brainstate.mixin.Mixin):
     __module__ = 'braincell'
 
     _container_name: str
@@ -77,7 +77,7 @@ class Container(bst.mixin.Mixin):
         raise NotImplementedError('Must be implemented by the subclass.')
 
 
-class TreeNode(bst.mixin.Mixin):
+class TreeNode(brainstate.mixin.Mixin):
     __module__ = 'braincell'
 
     root_type: type
@@ -100,7 +100,7 @@ class TreeNode(bst.mixin.Mixin):
             check_fun = TreeNode._root_leaf_pair_check
 
         for leaf in leaves:
-            if isinstance(leaf, bst.graph.Node):
+            if isinstance(leaf, brainstate.graph.Node):
                 check_fun(root, leaf)
             elif isinstance(leaf, (list, tuple)):
                 TreeNode.check_hierarchies(root, *leaf, check_fun=check_fun)
@@ -109,6 +109,6 @@ class TreeNode(bst.mixin.Mixin):
             else:
                 raise ValueError(f'Do not support {type(leaf)}.')
         for leaf in named_leaves.values():
-            if not isinstance(leaf, bst.graph.Node):
-                raise ValueError(f'Do not support {type(leaf)}. Must be instance of {bst.graph.Node}')
+            if not isinstance(leaf, brainstate.graph.Node):
+                raise ValueError(f'Do not support {type(leaf)}. Must be instance of {brainstate.graph.Node}')
             check_fun(root, leaf)

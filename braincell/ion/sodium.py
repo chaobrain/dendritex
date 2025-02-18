@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Union, Callable, Optional
 
-import brainstate as bst
+import brainstate
 import brainunit as u
 
 from braincell._base import Ion
@@ -44,12 +44,12 @@ class SodiumFixed(Sodium):
 
     def __init__(
         self,
-        size: bst.typing.Size,
-        E: Union[bst.typing.ArrayLike, Callable] = 50. * u.mV,
-        C: Union[bst.typing.ArrayLike, Callable] = 0.0400811 * u.mM,
+        size: brainstate.typing.Size,
+        E: Union[brainstate.typing.ArrayLike, Callable] = 50. * u.mV,
+        C: Union[brainstate.typing.ArrayLike, Callable] = 0.0400811 * u.mM,
         name: Optional[str] = None,
         **channels
     ):
         super().__init__(size, name=name, **channels)
-        self.E = bst.init.param(E, self.varshape, allow_none=False)
-        self.C = bst.init.param(C, self.varshape, allow_none=False)
+        self.E = brainstate.init.param(E, self.varshape, allow_none=False)
+        self.C = brainstate.init.param(C, self.varshape, allow_none=False)

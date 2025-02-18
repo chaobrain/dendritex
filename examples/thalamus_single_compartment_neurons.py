@@ -154,10 +154,10 @@ def try_trn_neuron():
     I = braintools.input.section_input(values=[0, -0.05, 0], durations=[500 * u.ms, 200 * u.ms, 1000 * u.ms]) * u.uA
     times = u.math.arange(I.shape[0]) * brainstate.environ.get_dt()
 
-    # neu = HTC([1, 1])  # [n_neuron, n_compartment]
-    # neu = IN([1, 1])  # [n_neuron, n_compartment]
-    # neu = RTC(1)  # [n_neuron, n_compartment]
-    neu = TRN([1, 1], gl=0.0075)  # [n_neuron, n_compartment]
+    # neu = HTC(1)  # [n_neuron, ]
+    # neu = IN(1)  # [n_neuron, ]
+    # neu = RTC(1)  # [n_neuron, ]
+    neu = TRN(1, gl=0.0075)  # [n_neuron,]
     neu.init_state()
 
     t0 = time.time()
