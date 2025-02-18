@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, TYPE_CHECKING
 
 import brainstate
 
@@ -45,27 +45,28 @@ class Container(brainstate.mixin.Mixin):
             res[k] = v
         return res
 
-    def __getitem__(self, item):
-        """
-        Overwrite the slice access (`self['']`).
-        """
-        children = self.__getattr__(self._container_name)
-        if item in children:
-            return children[item]
-        else:
-            raise ValueError(f'Unknown item {item}, we only found {list(children.keys())}')
+    if not TYPE_CHECKING:
+        def __getitem__(self, item):
+            """
+            Overwrite the slice access (`self['']`).
+            """
+            children = self.__getattr__(self._container_name)
+            if item in children:
+                return children[item]
+            else:
+                raise ValueError(f'Unknown item {item}, we only found {list(children.keys())}')
 
-    def __getattr__(self, item):
-        """
-        Overwrite the dot access (`self.`).
-        """
-        name = super().__getattribute__('_container_name')
-        if item == '_container_name':
-            return name
-        children = super().__getattribute__(name)
-        if item == name:
-            return children
-        return children[item] if item in children else super().__getattribute__(item)
+        def __getattr__(self, item):
+            """
+            Overwrite the dot access (`self.`).
+            """
+            name = super().__getattribute__('_container_name')
+            if item == '_container_name':
+                return name
+            children = super().__getattribute__(name)
+            if item == name:
+                return children
+            return children[item] if item in children else super().__getattribute__(item)
 
     def add_elem(self, *elems, **elements):
         """

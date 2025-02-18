@@ -219,7 +219,7 @@ class Ion(IonChannel, Container):
       name: The name of the object.
     """
     __module__ = 'braincell'
-    _container_name = 'channel'
+    _container_name = 'channels'
 
     # The type of the master object.
     root_type = HHTypedNeuron
@@ -324,7 +324,7 @@ class MixIons(IonChannel, Container):
     __module__ = 'braincell'
 
     root_type = HHTypedNeuron
-    _container_name = 'channel'
+    _container_name = 'channels'
 
     def __init__(self, *ions, name: Optional[str] = None, **channels):
         # TODO: check "ion" should be independent from each other
